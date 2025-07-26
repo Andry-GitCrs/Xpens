@@ -1,4 +1,4 @@
 <?php
-set_default_timezone_set('Africa/Nairobi');
+date_default_timezone_set('Africa/Nairobi');
 require_once 'config/init.php';
 include 'templates/home.html';

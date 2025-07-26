@@ -56,7 +56,7 @@ if ($method === 'PUT') {
 
     if ($updateStmt->execute()) {
         http_response_code(200);
-        echo json_encode([
+        echo json_encode([  
             'message' => 'Product updated successfully',
             'data' => [
                 'id_product' => $id,

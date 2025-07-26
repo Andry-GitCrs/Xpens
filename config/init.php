@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 $pdo->exec("
 CREATE TABLE IF NOT EXISTS lists (
   id_list INT AUTO_INCREMENT PRIMARY KEY,
-  list_name VARCHAR(255) UNIQUE NOT NULL,
+  list_name VARCHAR(255) NOT NULL,
   description TEXT DEFAULT 'No description',
   is_active BOOLEAN DEFAULT TRUE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS purchases (
   id_purchase INT AUTO_INCREMENT PRIMARY KEY,
   description TEXT DEFAULT 'No description',
   number INT NOT NULL,
+  unit VARCHAR(50) NOT NULL,
   unit_price DECIMAL(10,2) DEFAULT 0.00,
   total_price DECIMAL(10,2) GENERATED ALWAYS AS (number * unit_price) STORED,
   purchase_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
