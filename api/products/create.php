@@ -6,33 +6,28 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (isset($data['product_name']) && isset($data['price']) && isset($data['purchase_id'])) {
+    if (isset($data['product_name'])) {
         // Validate input
         $data['product_name'] = trim($data['product_name']);
-        $data['price'] = trim($data['price']);
-        $data['purchase_id'] = trim($data['purchase_id']);
 
-        if (empty($data['product_name']) || !is_numeric($data['price']) || !is_numeric($data['purchase_id'])) {
+        if (empty($data['product_name'] ) || !is_string($data['product_name'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid input, product_name must be a string, price and purchase_id must be numeric']);
+            echo json_encode(['message' => 'Invalid input, product_name must be a string']);
             exit;
         }
 
-        $existingProductCheck = $pdo->prepare("SELECT * FROM products WHERE product_name = :product_name AND stat = 1 AND purchase_id = :purchase_id");
+        $existingProductCheck = $pdo->prepare("SELECT * FROM products WHERE product_name = :product_name AND is_active = 1");
         // Check if product already exists
         $existingProductCheck->bindParam(':product_name', $data['product_name']);
-        $existingProductCheck->bindParam(':purchase_id', $data['purchase_id']);
         $existingProductCheck->execute();
         if ($existingProductCheck->rowCount() > 0) {
             http_response_code(409);
-            echo json_encode(['error' => 'Product already exists in this purchase, update it instead']);
+            echo json_encode(['message' => 'Product already exists']);
             exit;
         }
 
-        $stmt = $pdo->prepare("INSERT INTO products (product_name, price, purchase_id) VALUES (:product_name, :price, :purchase_id)");
+        $stmt = $pdo->prepare("INSERT INTO products (product_name) VALUES (:product_name)");
         $stmt->bindParam(':product_name', $data['product_name']);
-        $stmt->bindParam(':price', $data['price']);
-        $stmt->bindParam(':purchase_id', $data['purchase_id']);
         
         if ($stmt->execute()) {
             http_response_code(201);
@@ -41,25 +36,26 @@ if ($method === 'POST') {
               'data' => [
                 'id' => $pdo->lastInsertId(),
                 'product_name' => $data['product_name'],
-                'price' => $data['price'],
-                'purchase_id' => $data['purchase_id']
+                'created_at' => date('Y-m-d H:i:s'),
+                'is_active' => 1,
+                'updated_at' => null,
               ]
             ]);
 
         } else {
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to create product']);
+            echo json_encode(['message' => 'Failed to create product']);
         }
 
     } else {
         http_response_code(400);
         echo json_encode([
-          'error' => 'Invalid input, product_name, price, and purchase_id are required'
+          'message' => 'Invalid input, product_name is required'
         ]);
 
     }
 
 } else {
     http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    echo json_encode(['message' => 'Method not allowed']);
 }
