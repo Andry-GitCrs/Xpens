@@ -1,15 +1,33 @@
 <?php
 require_once '../../config/db.php';
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'DELETE') {
+
+  if (!isAuthenticated()) {
+      http_response_code(401);
+      echo json_encode(['message' => 'User not authenticated']);
+      exit;
+  }
+
   if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = trim($_GET['id']);
+    $user_id = $_SESSION['user']['id'];
 
     // Check if purchase exists
-    $stmt = $pdo->prepare("SELECT * FROM purchases WHERE id_purchase = :id AND is_active = 1");
+    $stmt = $pdo->prepare("
+      SELECT * FROM purchases 
+        JOIN lists ON purchases.list_id = lists.id_list
+        JOIN users ON lists.user_id = users.id_user
+      WHERE 
+        purchases.id_purchase = :id AND
+        purchases.is_active = 1 AND
+        users.id_user = :user_id
+    ");
     $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
 
     if ($stmt->rowCount() === 0) {

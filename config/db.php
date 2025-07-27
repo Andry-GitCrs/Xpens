@@ -1,5 +1,8 @@
 <?php
 require_once 'env.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 loadEnv();
 // Check if required keys exist
 $host = $_ENV['DB_HOST'] ?? die("Missing DB_HOST in .env");

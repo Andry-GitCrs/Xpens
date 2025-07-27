@@ -1,10 +1,19 @@
 <?php 
 require_once '../../config/db.php';
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'PUT') {
+
+    if (!isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode(['message' => 'User not authenticated']);
+        exit;
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
+    $user_id = $_SESSION['user']['id'] ?? null;
     
     if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
         http_response_code(400);
@@ -15,7 +24,8 @@ if ($method === 'PUT') {
     $id = trim($_GET['id']);
 
     // Fetch existing list
-    $stmt = $pdo->prepare("SELECT * FROM lists WHERE id_list = :id AND is_active = 1");
+    $stmt = $pdo->prepare("SELECT * FROM lists WHERE id_list = :id AND is_active = 1 AND user_id = :user_id");
+    $stmt->bindParam(':user_id', $user_id);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
 
@@ -40,18 +50,6 @@ if ($method === 'PUT') {
     if (empty($description) || !is_string($description)) {
         http_response_code(400);
         echo json_encode(['message' => 'Invalid input: description must not be empty and must be a string']);
-        exit;
-    }
-
-    // Check if another list with same name exists (excluding current)
-    $existingListCheck = $pdo->prepare("SELECT * FROM lists WHERE list_name = :list_name AND is_active = 1 AND id_list != :id");
-    $existingListCheck->bindParam(':list_name', $product_name);
-    $existingListCheck->bindParam(':id', $id);
-    $existingListCheck->execute();
-
-    if ($existingListCheck->rowCount() > 0) {
-        http_response_code(409);
-        echo json_encode(['message' => 'This list already exists']);
         exit;
     }
 

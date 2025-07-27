@@ -1,22 +1,25 @@
 <?php
 require_once '../../config/db.php';
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
+
+    if (!isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode(['message' => 'User not authenticated']);
+        exit;
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
     // Validate required fields
     $list_name = trim($data['list_name']) ?? null;
-    $user_id = $data['user_id'] ?? null;
+    $user_id = $_SESSION['user']['id'] ?? null;
 
     if(empty($list_name) || !is_string($list_name)) {
       http_response_code(400);
       echo json_encode(['message' => 'Invalid or missing "list_name". Must be a non-empty string.']);
-      exit;
-    }
-    if(empty($user_id) || !is_numeric($user_id) || $user_id < 0) {
-      http_response_code(400);
-      echo json_encode(['message' => 'Invalid or missing "user_id". Must be a non-negative number.']);
       exit;
     }
 
@@ -38,7 +41,7 @@ if ($method === 'POST') {
     $existingListCheck->execute();
 
     if ($existingListCheck->rowCount() > 0) {
-        http_response_code(404);
+        http_response_code(409);
         echo json_encode(['message' => 'List with the specified name already exist']);
         exit;
     }

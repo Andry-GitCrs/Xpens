@@ -1,11 +1,18 @@
 <?php
 require_once '../../config/db.php';
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
+    if (!isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode(['message' => 'User not authenticated']);
+        exit;
+    }
     $data = json_decode(file_get_contents('php://input'), true);
+    $user_id = $_SESSION['user']['id'];
 
     // Validate required fields
     $number = $data['number'] ?? null;
@@ -64,9 +71,8 @@ if ($method === 'POST') {
 
     // Optional fields
     $description = isset($data['description']) ? trim($data['description']) : 'No description';
-
-    $existingPurchaseCheck = $pdo->prepare("SELECT * FROM purchases WHERE list_id = :list_id AND product_id = :product_id AND is_active = 1");
     // Check if purchase already exists
+    $existingPurchaseCheck = $pdo->prepare("SELECT * FROM purchases WHERE list_id = :list_id AND product_id = :product_id AND is_active = 1");
     $existingPurchaseCheck->bindParam(':list_id', $list_id); 
     $existingPurchaseCheck->bindParam(':product_id', $product_id);
     $existingPurchaseCheck->execute();

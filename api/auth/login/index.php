@@ -4,6 +4,13 @@ header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
+
+    if(isset($_SESSION['user'])) {
+      http_response_code(401);
+      echo json_encode(['message' =>   'User ' . $_SESSION['user']['username'] . ' is already logged in. Please log out first.']);
+      exit;
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
     // Validate required fields
     $username = trim($data['username']) ?? null;
@@ -27,7 +34,7 @@ if ($method === 'POST') {
 
     if ($existingUsernameCheck->rowCount() === 0) {
         http_response_code(401);
-        echo json_encode(['message' => 'Invalid credentials']);
+        echo json_encode(['message' => 'Invalid credentials, user not registered']);
         exit;
     }
 
@@ -39,11 +46,17 @@ if ($method === 'POST') {
       exit;
     }
 
+    // Store user data in session
+    $_SESSION['user'] = [
+        'id' => $user['id_user'],
+        'username' => $user['username'],
+        'email' => $user['email'],
+        'created_at' => $user['created_at'],
+    ];
+
     http_response_code(200);
     echo json_encode([
-      'message' => 'User connected successfully',
-      'data' => $user,
-      'token' => ''
+      'message' => 'User ' . $user['username'] . ' connected successfully',
     ]);
 
 } else {

@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM users WHERE is_active = 1");
+    $stmt = $pdo->query("SELECT username, is_active, created_at, updated_at FROM users WHERE is_active = 1");
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($data);
 }else {

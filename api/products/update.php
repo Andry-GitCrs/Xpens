@@ -1,9 +1,17 @@
 <?php 
 require_once '../../config/db.php';
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'PUT') {
+
+    if (!isAuthenticated()) {
+        http_response_code(401);
+        echo json_encode(['message' => 'User not authenticated']);
+        exit;
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
