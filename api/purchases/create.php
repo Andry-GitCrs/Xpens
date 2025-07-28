@@ -71,6 +71,33 @@ if ($method === 'POST') {
 
     // Optional fields
     $description = isset($data['description']) ? trim($data['description']) : 'No description';
+    $purchase_date = isset($data['purchase_date']) ? trim($data['purchase_date']) : date('d-m-Y H:i');
+
+
+    if ($purchase_date !== null ) {
+        if (!is_string($purchase_date)) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid "purchase_date". Must be a string.']);
+            exit;
+        }
+
+        $date = DateTime::createFromFormat('d-m-Y H:i', $purchase_date);
+        $errors = DateTime::getLastErrors();
+
+        if (!$date || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid "purchase_date". Must be in format dd-mm-yyyy HH:ii and valid.']);
+            exit;
+        }
+
+        // Convert to SQL format
+        $sqlFormattedDate = $date->format('Y-m-d H:i:s');
+    } else {
+        http_response_code(400);
+        echo json_encode(['message' => 'Invalid or missing "purchase_date". Must be in format dd-mm-yyyy HH:ii and valid.']);
+        exit;
+    }
+
     // Check if purchase already exists
     $existingPurchaseCheck = $pdo->prepare("SELECT * FROM purchases WHERE list_id = :list_id AND product_id = :product_id AND is_active = 1");
     $existingPurchaseCheck->bindParam(':list_id', $list_id); 
@@ -85,9 +112,9 @@ if ($method === 'POST') {
     // Insert into purchases
     $stmt = $pdo->prepare("
         INSERT INTO purchases 
-          (description, number, unit, unit_price, list_id, product_id) 
+          (description, number, unit, unit_price, list_id, product_id, purchase_date) 
         VALUES 
-          (:description, :number, :unit, :unit_price, :list_id, :product_id)
+          (:description, :number, :unit, :unit_price, :list_id, :product_id, :purchase_date)
     ");
 
     $stmt->bindParam(':description', $description);
@@ -96,6 +123,10 @@ if ($method === 'POST') {
     $stmt->bindParam(':unit_price', $unit_price);
     $stmt->bindParam(':list_id', $list_id);
     $stmt->bindParam(':product_id', $product_id);
+
+    if ($purchase_date !== null) {
+        $stmt->bindParam(':purchase_date', $sqlFormattedDate);
+    }
 
     if ($stmt->execute()) {
         $id = $pdo->lastInsertId();

@@ -20,10 +20,15 @@ if ($method === 'GET') {
     $stmt = $pdo->prepare("
       SELECT 
         purchases.id_purchase,
+        purchases.description,
+        purchases.purchase_date,
         purchases.number,
         purchases.unit_price,
+        purchases.unit,
         purchases.total_price,
         products.product_name,
+        purchases.created_at,
+        purchases.updated_at,
         lists.list_name
       FROM purchases 
         JOIN products ON purchases.product_id = products.id_product
@@ -46,9 +51,14 @@ if ($method === 'GET') {
   $stmt = $pdo->prepare("
     SELECT 
       purchases.id_purchase,
+      purchases.description,
+      purchases.purchase_date,
       purchases.number,
       purchases.unit_price,
+      purchases.unit,
       purchases.total_price,
+      purchases.created_at,
+      purchases.updated_at,
       products.product_name,
       lists.list_name
     FROM purchases 

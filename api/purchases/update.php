@@ -43,6 +43,30 @@ if ($method === 'PUT') {
     $product_id = isset($data['product_id']) ? trim($data['product_id']) : $existingPurchase['product_id'];
     $list_id = isset($data['list_id']) ? trim($data['list_id']) : $existingPurchase['list_id'];
     $is_active = isset($data['is_active']) ? trim($data['is_active']) : $existingPurchase['is_active'];
+    $purchase_date = isset($data['purchase_date']) ? trim($data['purchase_date']) : $existingPurchase['purchase_date'];
+    if ($purchase_date !== null ) {
+        if (!is_string($purchase_date)) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid "purchase_date". Must be a string.']);
+            exit;
+        }
+
+        $date = DateTime::createFromFormat('d-m-Y H:i', $purchase_date);
+        $errors = DateTime::getLastErrors();
+
+        if (!$date || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Invalid "purchase_date". Must be in format dd-mm-yyyy HH:ii and valid.']);
+            exit;
+        }
+
+        // Convert to SQL format
+        $sqlFormattedDate = $date->format('Y-m-d H:i:s');
+    } else {
+        http_response_code(400);
+        echo json_encode(['message' => 'Invalid or missing "purchase_date". Must be in format dd-mm-yyyy HH:ii and valid.']);
+        exit;
+    }
 
     // Validate partial inputs
     if ($number === null || !is_numeric($number) || $number <= 0) {
@@ -110,16 +134,26 @@ if ($method === 'PUT') {
     }
 
     // Perform update with merged data
-    $updateStmt = $pdo->prepare("UPDATE purchases SET description = :description, number = :number, unit = :unit, unit_price = :unit_price, list_id = :list_id, product_id = :product_id WHERE id_purchase = :id");
+    $updateStmt = $pdo->prepare("UPDATE purchases SET description = :description, number = :number, unit = :unit, unit_price = :unit_price, list_id = :list_id, product_id = :product_id, purchase_date = :purchase_date WHERE id_purchase = :id");
     $updateStmt->bindParam(':description', $description);
     $updateStmt->bindParam(':number', $number);
     $updateStmt->bindParam(':unit', $unit);
     $updateStmt->bindParam(':unit_price', $unit_price);
+    $updateStmt->bindParam(':purchase_date', $sqlFormattedDate);
     $updateStmt->bindParam(':list_id', $list_id);
-    $updateStmt->bindParam(':product_id', $product_id);
+    $updateStmt->bindParam(':product_id', $product_id);    
     $updateStmt->bindParam(':id', $id);
 
     if ($updateStmt->execute()) {
+
+        $updated_at = date('Y-m-d H:i:s');
+
+        // Fetch updated row to return (including generated total_price, timestamps)
+        $fetchStmt = $pdo->prepare("SELECT * FROM purchases WHERE id_purchase = :id");
+        $fetchStmt->bindParam(':id', $id);
+        $fetchStmt->execute();
+        $purchase = $fetchStmt->fetch(PDO::FETCH_ASSOC);
+
         http_response_code(200);
         echo json_encode([  
             'message' => 'Purchase updated successfully',
@@ -129,7 +163,10 @@ if ($method === 'PUT') {
                 'number' => $number,
                 'unit' => $unit,
                 'unit_price' => $unit_price,
-                'total_price' => $unit_price * $number,
+                'total_price' => $purchase['total_price'],
+                'purchase_date' => $purchase_date,
+                'created_at' => $purchase['created_at'],
+                'updated_at' => $updated_at,
                 'list_id' => $list_id,
                 'product_id' => $product_id,
             ]

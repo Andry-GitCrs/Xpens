@@ -41,7 +41,7 @@ $pdo->exec("
 CREATE TABLE IF NOT EXISTS purchases (
   id_purchase INT AUTO_INCREMENT PRIMARY KEY,
   description TEXT DEFAULT 'No description',
-  number INT NOT NULL,
+  number DECIMAL(10,2) NOT NULL,
   unit VARCHAR(50) NOT NULL,
   unit_price DECIMAL(10,2) DEFAULT 0.00,
   total_price DECIMAL(10,2) GENERATED ALWAYS AS (number * unit_price) STORED,

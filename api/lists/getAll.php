@@ -14,7 +14,15 @@ if ($method === 'GET') {
     }
 
     $user_id = $_SESSION['user']['id'] ?? null;
-    $stmt = $pdo->prepare("SELECT * FROM lists WHERE is_active = 1 AND user_id = :user_id");
+    $stmt = $pdo->prepare("
+        SELECT 
+            lists.*, 
+            COUNT(purchases.id_purchase) AS purchase_nbr
+        FROM lists
+            LEFT JOIN purchases ON lists.id_list = purchases.list_id
+            WHERE lists.is_active = 1 AND lists.user_id = :user_id
+        GROUP BY lists.id_list
+    ");
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
