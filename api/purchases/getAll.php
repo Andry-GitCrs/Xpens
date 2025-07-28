@@ -76,6 +76,10 @@ if ($method === 'GET') {
     http_response_code(400);
     echo json_encode(['message' => 'purchase_date must be a string']);
     exit;
+  } elseif (isset($_GET['get_total'])) {
+    http_response_code(400);
+    echo json_encode(['message' => 'Missing purchase_date']);
+    exit;
   }
 
   if (isset($_GET['list_id']) && is_numeric($_GET['list_id'])) {
