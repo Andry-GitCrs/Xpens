@@ -1,6 +1,6 @@
 <?php
 require_once '../../config/db.php';
-require_once '../../helper/purchases/get-total-price.php';
+require_once '../../helper/purchases/get-total-expense-by-product.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -23,7 +23,7 @@ if ($method === 'GET' && isset($_GET['product_id']) && isset($_GET['get_total_ex
   }
 
   if ($get_total_expense === "1") {
-    $data = getTotalPrice($product_id, $pdo);
+    $data = get_total_expense_by_product($product_id, $pdo);
     echo json_encode($data);
     exit;
   } else {

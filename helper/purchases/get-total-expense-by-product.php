@@ -1,5 +1,5 @@
 <?php
-function getTotalPrice($product_id, $pdo) {
+function get_total_expense_by_product($product_id, $pdo) {
 
   $productCheck = $pdo->prepare("SELECT * FROM products WHERE id_product = :product_id AND is_active = 1");
   $productCheck->bindParam(':product_id', $product_id);
@@ -27,6 +27,6 @@ function getTotalPrice($product_id, $pdo) {
   $data = $stmt->fetch(PDO::FETCH_ASSOC);
   return [
     'product_name' => $productCheck->fetch(PDO::FETCH_ASSOC)['product_name'],
-    'total_price' => $data['total_price'] ? $data['total_price'] : 0
+    'total_expense' => $data['total_price'] ? $data['total_price'] : 0
   ];
 }

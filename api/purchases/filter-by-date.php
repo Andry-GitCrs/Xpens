@@ -5,6 +5,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET' && isset($_GET['purchase_date'])) {
   $date = $_GET['purchase_date'];
+  $user_id = $_SESSION['user']['id'];
   if (trim($date) === "") {
     http_response_code(400);
     echo json_encode(['message' => 'param purchase_date cannot be empty']);

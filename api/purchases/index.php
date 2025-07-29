@@ -14,6 +14,7 @@ $filter_by_list = $method === 'GET' && isset($_GET["list_id"]);
 $filter_by_date = $method === 'GET' && isset($_GET["purchase_date"]);
 $get_total_expense_by_product = $method === 'GET' && isset($_GET['product_id']) && isset($_GET['get_total_expense']);
 $get_total_expense_by_date = $method === 'GET' && isset($_GET['purchase_date']) && isset($_GET['get_total_expense']);
+$get_total_expense_by_date_range = $method === 'GET' && isset($_GET['start_date']) && isset($_GET['end_date']) && isset($_GET['get_total_expense']);
 $create = $method === 'POST';
 $update = $method === 'PUT';
 $delete = $method === 'DELETE';
@@ -24,21 +25,25 @@ if (
   !$filter_by_date &&
   !$filter_by_list &&
   !$get_total_expense_by_product &&
-  !$get_total_expense_by_date
+  !$get_total_expense_by_date &&
+  !$get_total_expense_by_date_range
 ) { 
   require_once 'get-all.php';
 
 } elseif ($filter_by_list) { # /api/purchases?list_id=X
   require_once 'filter-by-list.php';
 
-} elseif ($filter_by_date && !$get_total_expense_by_date) { # /api/purchases?purchase_date=dd-mm-yyyy
+} elseif ($filter_by_date && !$get_total_expense_by_date && !$get_total_expense_by_date_range) { # /api/purchases?purchase_date=dd-mm-yyyy
   require_once 'filter-by-date.php';
 
 } elseif ($get_total_expense_by_product) { # /api/purchases?product_id=X&get_total_expense=1
   require_once 'get-total-expense-by-product.php';
 
-} elseif ($get_total_expense_by_date) { # /api/purchases?purchase_date=dd-mm-yyyy&get_total_expense=1
+} elseif ($get_total_expense_by_date && !$get_total_expense_by_date_range) { # /api/purchases?purchase_date=dd-mm-yyyy&get_total_expense=1
   require_once 'get-total-expense-by-date.php';
+
+} elseif($get_total_expense_by_date_range) { # /api/purchases?start_date=dd-mm-yyyy&end_date=dd-mm-yyyy&get_total_expense=1
+  require_once 'get-total-expense-by-date-range.php';
 
 } elseif ($create) { # /api/purchases  --POST
   require_once 'create.php';
