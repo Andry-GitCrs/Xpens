@@ -44,10 +44,7 @@ if ($method === 'GET' && isset($_GET["list_id"])) {
   $stmt->bindParam(':user_id', $user_id);
   $stmt->execute();
   $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  echo json_encode([
-    "message" => "#". $id_list ." list purchases",
-    "data" => $data
-  ]);
+  echo json_encode($data);
   exit;
 
 } else {

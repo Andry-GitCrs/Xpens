@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Dashboard · Xpens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    .loader { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .toast { position: fixed; top: 1rem; right: 1rem; max-width: 20rem; padding: .75rem 1rem; color: #fff; border-radius: .5rem; font-size: .875rem; z-index: 50; transition: transform .3s; transform: translateX(110%); }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: #10b981; } .toast.error { background: #ef4444; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100">
+
+<div class="min-h-screen lg:flex">
+  <!-- Sidebar -->
+  <aside class="bg-white dark:bg-slate-800 w-full lg:w-64 border-r border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
+    <!-- Top Section: Logo + Main Navigation -->
+    <div>
+      <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+        <i class="fas fa-wallet text-indigo-600"></i> Xpens
+      </h2>
+      <nav class="space-y-2">
+        <a href="/templates/pages/dashboard.html" class="bg-slate-100 dark:bg-slate-700 flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-chart-line text-indigo-600"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/templates/pages/lists.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-list-ul text-orange-600"></i>
+          <span>Lists</span>
+        </a>
+        <a href="/templates/pages/purchases.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-shopping-cart text-green-600"></i>
+          <span>Purchases</span>
+        </a>
+        <a href="/templates/pages/products.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-box-open text-blue-600"></i>
+          <span>Products</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Section: Extra Links -->
+    <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#profile" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-cog text-gray-600"></i>
+        <span>Settings</span>
+      </a>
+      <a href="#bug-report" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-bug text-yellow-600"></i>
+        <span>Bug Report</span>
+      </a>
+      <button id="logoutBtn" class="w-full flex items-center gap-3 p-2 rounded text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-indigo-500">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 overflow-y-auto max-h-screen">
+    <!-- Topbar -->
+    <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
+      <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Dashboard</h1>
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="p-4 sm:p-6 grid gap-6">
+      <!-- KPI cards -->
+      <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="kpiTotal" class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <div class="text-sm text-slate-500 dark:text-slate-400">Total Spent</div>
+          <div class="text-2xl font-bold text-indigo-600">—</div>
+        </div>
+        <div id="kpiLists" onclick="window.location.href='/templates/pages/lists.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <div class="text-sm text-slate-500 dark:text-slate-400">Lists</div>
+          <div class="text-2xl font-bold text-sky-600">—</div>
+        </div>
+        <div id="kpiPurchases" onclick="window.location.href='/templates/pages/purchases.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <div class="text-sm text-slate-500 dark:text-slate-400">Purchases</div>
+          <div class="text-2xl font-bold text-emerald-600">—</div>
+        </div>
+        <div id="kpiProducts" onclick="window.location.href='/templates/pages/products.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <div class="text-sm text-slate-500 dark:text-slate-400">Products</div>
+          <div class="text-2xl font-bold text-amber-600">—</div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <h2 class="font-semibold mb-2">Spend Over Time</h2>
+          <canvas id="spendChart" height="120"></canvas>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <h2 class="font-semibold mb-2">Top Products</h2>
+          <canvas id="topProductsChart" height="120"></canvas>
+        </div>
+      </section>
+
+      <!-- Recent purchases -->
+      <section>
+        <h2 class="font-semibold mb-2">Recent Purchases</h2>
+        <div id="recentPurchases" class="bg-white dark:bg-slate-800 rounded-xl shadow overflow-x-auto p-3">
+          <div class="loader w-full h-32"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const BASE = 'http://localhost:8000/api';
+const toast = (msg, type = 'success') => {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type}`;
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => el.classList.remove('show'), 3000);
+};
+
+const darkMode = () => {
+  document.documentElement.classList.toggle('dark', localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+};
+darkMode();
+
+document.getElementById('themeToggle').onclick = () => {
+  localStorage.theme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+  darkMode();
+};
+document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`).then(() => location.href = '/');
+
+(async () => {
+  const [lists, purchases, products] = await Promise.all([
+    fetch(`${BASE}/lists`).then(r => r.json()),
+    fetch(`${BASE}/purchases`).then(r => r.json()),
+    fetch(`${BASE}/products`).then(r => r.json())
+  ]);
+
+  const total = purchases.reduce((a, b) => a + b.number * b.unit_price, 0);
+  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total.toFixed(2)}`;
+  document.getElementById('kpiLists').querySelector('div:last-child').textContent = lists.length;
+  document.getElementById('kpiPurchases').querySelector('div:last-child').textContent = purchases.length;
+  document.getElementById('kpiProducts').querySelector('div:last-child').textContent = products.length;
+
+  const byDate = {};
+  purchases.forEach(p => {
+    const day = p.purchase_date.split(' ')[0];
+    byDate[day] = (byDate[day] || 0) + p.number * p.unit_price;
+  });
+  new Chart(document.getElementById('spendChart'), {
+    type: 'line',
+    data: {
+      labels: Object.keys(byDate).sort(),
+      datasets: [{
+        label: 'Ar spent',
+        data: Object.keys(byDate).sort().map(k => byDate[k]),
+        fill: false,
+        borderColor: '#6366f1'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  const prodMap = {};
+purchases.forEach(p => {
+  const name = p.product_name || 'Unknown';
+  const price = parseFloat(p.unit_price);
+  const qty = parseFloat(p.number);
+
+  if (!prodMap[name]) {
+    prodMap[name] = { total: 0, qty: 0 };
+  }
+
+  prodMap[name].total += price * qty;
+  prodMap[name].qty += qty;
+});
+
+// Get top 5 by total spent
+const top = Object.entries(prodMap)
+  .sort((a, b) => b[1].total - a[1].total)
+  .slice(0, 5);
+
+// Extract labels and values
+const labels = top.map(([name]) => name);
+const totalValues = top.map(([, val]) => val.total);
+const qtyValues = top.map(([, val]) => val.qty);
+
+// Chart: Side-by-side bar chart (use 'bar' and stack false)
+new Chart(document.getElementById('topProductsChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Total Ar Spent',
+        data: totalValues,
+        backgroundColor: '#10b981'
+      },
+      {
+        label: 'Quantity',
+        data: qtyValues,
+        backgroundColor: '#3b82f6'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: {
+        stacked: false
+      },
+      y: {
+        beginAtZero: true,
+        stacked: false
+      }
+    }
+  }
+});
+
+  const recent = purchases.slice(-5).reverse();
+  console.log(recent);
+  document.getElementById('recentPurchases').innerHTML = `
+  <table class="w-full text-sm">
+    <thead class="border-b border-slate-200 dark:border-slate-700">
+      <tr>
+        <th class="p-2 text-left">Product</th>
+        <th class="p-2 text-left">List</th>
+        <th class="p-2 text-left">Qty</th>
+        <th class="p-2 text-right">Amount</th>
+        <th class="p-2 text-right">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${recent.map(p => `
+        <tr class="border-b border-slate-100 dark:border-slate-700">
+          <td class="p-2 font-medium">${p.product_name || '-'}</td>
+          <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
+          <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
+          <td class="p-2 text-right">Ar ${(+p.unit_price * +p.number).toFixed(2)}</td>
+          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString()}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+`;
+
+})();
+</script>
+</body>
+</html>

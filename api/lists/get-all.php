@@ -10,7 +10,8 @@ if ($method === 'GET') {
     $stmt = $pdo->prepare("
         SELECT 
             lists.*, 
-            COUNT(purchases.id_purchase) AS purchase_nbr
+            COUNT(purchases.id_purchase) AS purchase_nbr,
+            SUM(purchases.total_price) AS total_expense
         FROM lists
             LEFT JOIN purchases ON lists.id_list = purchases.list_id
             WHERE lists.is_active = 1 AND lists.user_id = :user_id

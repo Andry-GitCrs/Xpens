@@ -29,7 +29,12 @@ if ($method === 'GET' && isset($_GET['purchase_date'])) {
   $sqlDate = $parsedDate->format('Y-m-d');
 
   $stmt = $pdo->prepare("
-    SELECT purchases.* FROM purchases
+    SELECT 
+      purchases.*,
+      products.product_name,
+      lists.list_name
+    FROM purchases
+      JOIN products ON purchases.product_id = products.id_product
       JOIN lists ON purchases.list_id = lists.id_list
       JOIN users ON lists.user_id = users.id_user
     WHERE 
@@ -40,10 +45,8 @@ if ($method === 'GET' && isset($_GET['purchase_date'])) {
   $stmt->bindParam(':user_id', $user_id);
   $stmt->bindParam(':date', $sqlDate);
   $stmt->execute();
-  echo json_encode([
-    "date" => $date,
-    "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
-  ]);
+  $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  echo json_encode($data);
 
 } else {
   http_response_code(405);

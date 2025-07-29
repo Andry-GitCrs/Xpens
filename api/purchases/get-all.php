@@ -24,15 +24,13 @@ if ($method === 'GET') {
       JOIN users ON lists.user_id = users.id_user 
     WHERE 
       purchases.is_active = 1 AND
+      lists.is_active = 1 AND
       lists.user_id = :user_id
   ");
   $stmt->bindParam(':user_id', $user_id);
   $stmt->execute();
   $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  echo json_encode([
-    "message" => "#". $user_id ." user purchase list",
-    "data" => $data
-  ]);
+  echo json_encode($data);
 
 }
 else {

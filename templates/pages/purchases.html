@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Purchases · Xpens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    .toast{position:fixed;top:1rem;right:1rem;max-width:20rem;padding:.75rem 1rem;color:#fff;border-radius:.5rem;font-size:.875rem;z-index:50;transition:transform .3s;transform:translateX(110%);}
+    .toast.show{transform:translateX(0);}
+    .toast.success{background:#10b981;} .toast.error{background:#ef4444;}
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100">
+
+<div class="min-h-screen lg:flex">
+  <!-- Sidebar -->
+  <aside class="bg-white dark:bg-slate-800 w-full lg:w-64 border-r border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
+    <!-- Top Section: Logo + Main Navigation -->
+    <div>
+      <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+        <i class="fas fa-wallet text-indigo-600"></i> Xpens
+      </h2>
+      <nav class="space-y-2">
+        <a href="/templates/pages/dashboard.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-chart-line text-indigo-600"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/templates/pages/lists.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-list-ul text-orange-600"></i>
+          <span>Lists</span>
+        </a>
+        <a href="/templates/pages/purchases.html" class="bg-slate-100 dark:bg-slate-700 flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-shopping-cart text-green-600"></i>
+          <span>Purchases</span>
+        </a>
+        <a href="/templates/pages/products.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-box-open text-blue-600"></i>
+          <span>Products</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Section: Extra Links -->
+    <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#profile" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-cog text-gray-600"></i>
+        <span>Settings</span>
+      </a>
+      <a href="#bug-report" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-bug text-yellow-600"></i>
+        <span>Bug Report</span>
+      </a>
+      <button id="logoutBtn" class="w-full flex items-center gap-3 p-2 rounded text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-indigo-500">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 overflow-y-auto max-h-screen">
+    <!-- Topbar -->
+    <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
+      <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Purchases</h1>
+        <div>
+          <button id="addBtn" class="me-3 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">+ Add</button>
+          <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-4 sm:p-6 grid gap-6">
+      <!-- filters -->
+      <section class="grid md:grid-cols-3 gap-4">
+        <input id="dateFilter" type="date" class="px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white">
+        <select id="listFilter" class="px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"></select>
+        <button id="clearBtn" class="text-sm underline text-slate-500">Clear filters</button>
+      </section>
+
+      <!-- chart -->
+      <canvas id="dailyChart" height="100"></canvas>
+
+      <!-- table -->
+      <div id="table" class="bg-white dark:bg-slate-800 rounded-xl shadow overflow-x-auto p-3">
+        <div class="p-4">Loading…</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="modal" class="fixed inset-0 bg-black/40 hidden place-items-center z-30">
+  <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md space-y-3">
+    <h2 id="modalTitle">New Purchase</h2>
+    <select id="productSel" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"></select>
+    <select id="listSel" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"></select>
+    <input id="number" type="number" min="1" placeholder="Quantity" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
+    <input id="unit" placeholder="Unit (e.g. kg)" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
+    <input id="price" type="number" step="0.01" placeholder="Unit price" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
+    <input id="purchaseDate" type="datetime-local" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
+    <textarea id="desc" placeholder="Note (optional)" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent resize-none"></textarea>
+    <div class="flex justify-end space-x-2">
+      <button id="cancelBtn" class="text-sm text-slate-500">Cancel</button>
+      <button id="saveBtn" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+const BASE='http://localhost:8000/api';
+const toast=(m,t='success')=>{const el=document.getElementById('toast');el.textContent=m;el.className=`toast ${t}`;setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>el.classList.remove('show'),3000);};
+let purchases=[],products=[],lists=[],chart,editing=null;
+
+const load=async()=>{
+  [purchases,products,lists]=await Promise.all([
+    fetch(`${BASE}/purchases`).then(r=>r.ok?r.json():Promise.reject()),
+    fetch(`${BASE}/products`).then(r=>r.ok?r.json():Promise.reject()),
+    fetch(`${BASE}/lists`).then(r=>r.ok?r.json():Promise.reject())
+  ]);
+  populateFilters(); render();
+};
+const populateFilters=()=>{
+  const l=document.getElementById('listFilter');l.innerHTML='<option value="">All Lists</option>'+lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
+  const p=document.getElementById('productSel');p.innerHTML=products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
+  const l2=document.getElementById('listSel');l2.innerHTML=lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
+};
+const render= async ()=>{
+  const date=document.getElementById('dateFilter').value;
+  const list=document.getElementById('listFilter').value;
+  let filtered=purchases;
+  if(date) {
+    const purchaseFilteredByDate = await fetch(`${BASE}/purchases?purchase_date=${formatDate(date)}`).then(r=>r.ok?r.json():Promise.reject())
+    filtered=purchaseFilteredByDate;
+  }
+  if(list) {
+    const purchaseFilteredByList = await fetch(`${BASE}/purchases?list_id=${list}`).then(r=>r.ok?r.json():Promise.reject())
+    filtered=purchaseFilteredByList;
+  };
+  document.getElementById('table').innerHTML = `
+  <table class="w-full text-sm">
+    <thead class="border-b border-slate-200 dark:border-slate-700">
+      <tr>
+        <th class="p-2 text-left">Product</th>
+        <th class="p-2 text-left">List</th>
+        <th class="p-2 text-left">Qty</th>
+        <th class="p-2 text-right">Amount</th>
+        <th class="p-2 text-right">Date</th>
+        <th class="p-2 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filtered.map(p => `
+        <tr class="border-b border-slate-100 dark:border-slate-700">
+          <td class="p-2 font-medium">${p.product_name || '-'}</td>
+          <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
+          <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
+          <td class="p-2 text-right">Ar ${(parseFloat(p.unit_price) * parseFloat(p.number)).toFixed(2)}</td>
+          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleString('fr-FR', { hour12: false })}</td>
+          <td class="p-2 text-right text-sm space-x-1">
+            <button onclick="editPurchase(${p.id_purchase})" class="text-indigo-500 hover:underline"><i class="fas fa-edit"></i></button>
+            <button onclick="delPurchase(${p.id_purchase})" class="text-red-500 hover:underline"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+`;
+
+drawChart(filtered);
+
+};
+const drawChart = (filteredPurchases = purchases) => {
+  const productData = {};
+
+  filteredPurchases.forEach(p => {
+    const label = p.product_name;
+    if (!productData[label]) {
+      productData[label] = { qty: 0, value: 0 };
+    }
+    productData[label].qty += Number(p.number);
+    productData[label].value += Number(p.total_price);
+  });
+
+  const labels = Object.keys(productData);
+  const qtyData = labels.map(l => productData[l].qty);
+  const valueData = labels.map(l => productData[l].value);
+
+  const ctx = document.getElementById('dailyChart');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Qty',
+          data: qtyData,
+          borderColor: '#10b981',
+          backgroundColor: '#10b98144',
+          tension: 0.3,
+          fill: false,
+          yAxisID: 'yQty'
+        },
+        {
+          label: 'Value (Ar)',
+          data: valueData,
+          borderColor: '#3b82f6',
+          backgroundColor: '#3b82f644',
+          tension: 0.3,
+          fill: false,
+          yAxisID: 'yValue'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      },
+      scales: {
+        yQty: {
+          type: 'linear',
+          position: 'left',
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Qty'
+          }
+        },
+        yValue: {
+          type: 'linear',
+          position: 'right',
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Value (Ar)'
+          },
+          grid: {
+            drawOnChartArea: false // prevents double grid lines
+          }
+        },
+        x: {
+          ticks: {
+            autoSkip: true,
+            maxRotation: 60,
+            minRotation: 45
+          }
+        }
+      }
+    }
+  });
+
+};
+
+document.getElementById('dateFilter').onchange=render;
+document.getElementById('listFilter').onchange=render;
+document.getElementById('clearBtn').onclick=()=>{document.getElementById('dateFilter').value='';document.getElementById('listFilter').value='';render();};
+
+const openModal = (id = null) => {
+  editing = id;
+  document.getElementById('modalTitle').textContent = id ? 'Edit Purchase' : 'New Purchase';
+
+  if (id) {
+    const p = purchases.find(p => p.id_purchase == id);
+    if (!p) return;
+
+    // Map model keys to element IDs
+    const fieldMap = {
+      productSel: 'productSel',
+      listSel: 'listSel',
+      number: 'number',
+      unit: 'unit',
+      unit_price: 'price',
+      purchase_date: 'purchaseDate',
+      description: 'desc',
+    };
+
+    for (const [key, elementId] of Object.entries(fieldMap)) {
+      const el = document.getElementById(elementId);
+      if (el) el.value = p[key] ?? '';
+    }
+  } else {
+    // Clear all fields in case of new purchase
+    ['productSel', 'listSel', 'number', 'unit', 'price', 'purchaseDate', 'desc'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+
+  // Show modal
+  const modal = document.getElementById('modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('grid');
+};
+const closeModal=()=>{document.getElementById('modal').classList.add('hidden');document.getElementById('modal').classList.remove('grid');};
+document.getElementById('addBtn').onclick=()=>openModal();
+document.getElementById('cancelBtn').onclick=closeModal;
+document.getElementById('saveBtn').onclick=async()=>{
+  const body={
+    product_id:+document.getElementById('productSel').value,
+    list_id:+document.getElementById('listSel').value,
+    number:+document.getElementById('number').value,
+    unit:document.getElementById('unit').value,
+    unit_price:+document.getElementById('price').value,
+    purchase_date:toServerDatetimeFormat(document.getElementById('purchaseDate').value),
+    description:document.getElementById('desc').value
+  };
+  if(!body.number||!body.unit_price){toast('Fill required fields','error');return;}
+  const method=editing?'PUT':'POST';
+  const url=editing?`${BASE}/purchases?id=${editing}`:`${BASE}/purchases`;
+  const res = await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  .then(async res  => {
+    const response = await res.json()
+    if (res.ok) {
+      toast(editing?'Updated' || response.message :'Created' || response.message);
+      closeModal();
+      load();
+      return
+    }
+    toast(editing? response.message || 'Error while updating' :response.message || 'Error while creating the purchase' , 'error');
+  });
+};
+const editPurchase=id=>openModal(id);
+const delPurchase=async id=>{
+  if(!confirm('Delete?'))return;
+  await fetch(`${BASE}/purchases?id=${id}`,{method:'DELETE'});
+  toast('Deleted');load();
+};
+function toServerDatetimeFormat(inputValue) {
+  // Convert from yyyy-mm-ddTHH:ii → dd-mm-yyyy HH:ii
+  const [datePart, timePart] = inputValue.split('T');
+  const [year, month, day] = datePart.split('-');
+  return `${day}-${month}-${year} ${timePart}`;
+}
+load();
+const darkMode = () => {
+  document.documentElement.classList.toggle('dark', localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+};
+darkMode();
+
+document.getElementById('themeToggle').onclick = () => {
+  localStorage.theme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+  darkMode();
+};
+document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`).then(() => location.href = '/');
+function formatDate(dateStr) {
+  const [year, month, day] = dateStr.split('-');
+  return `${day}-${month}-${year}`;
+}
+</script>
+</body>
+</html>

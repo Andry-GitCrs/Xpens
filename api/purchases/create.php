@@ -63,7 +63,7 @@ if ($method === 'POST') {
     }
 
     // Optional fields
-    $description = isset($data['description']) ? trim($data['description']) : 'No description';
+    $description = isset($data['description']) && !empty($data['description']) ? trim($data['description']) : 'No description';
     $purchase_date = isset($data['purchase_date']) ? trim($data['purchase_date']) : date('d-m-Y H:i');
 
 

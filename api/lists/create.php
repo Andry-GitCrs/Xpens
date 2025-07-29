@@ -39,7 +39,7 @@ if ($method === 'POST') {
         exit;
     }
     
-    $description = isset($data['description']) ? trim($data['description']) : 'No description';
+    $description = isset($data['description']) && !empty($data['description']) ? trim($data['description']) : 'No description';
 
     // Insert into lists
     $stmt = $pdo->prepare("

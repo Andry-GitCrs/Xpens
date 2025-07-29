@@ -3,7 +3,7 @@ require_once '../../../config/db.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
-if ($method === 'POST') {
+if ($method === 'GET') {
 
   if (!isset($_SESSION['user'])) {
     http_response_code(401);
