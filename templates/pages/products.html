@@ -132,20 +132,38 @@ const fetchProducts = async () => {
 const render = () => {
   const c = document.getElementById('productContainer');
   c.innerHTML = products.map(p => `
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4 flex justify-between items-center">
-      <span class="font-medium">${p.product_name}</span>
-      <div class="flex space-x-2">
-        <button onclick="editProduct(${p.id_product})" class="text-sm text-indigo-500 hover:underline"> <i class="fas fa-edit"></i></button>
-        <button onclick="deleteProduct(${p.id_product})" class="text-sm text-red-500 hover:underline"> <i class="fas fa-trash"></i></button>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4 space-y-2">
+    <div class="flex justify-between items-center">
+      <div>
+        <span class="font-medium text-lg">${p.product_name}</span>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          ${p.purchase_nbr} purchase${p.purchase_nbr > 1 ? 's' : ''} • ${parseFloat(p.total_expense).toLocaleString()} Ar
+        </div>
       </div>
-    </div>`).join('');
+      <div class="flex space-x-2">
+        <button onclick="editProduct(${p.id_product})" class="text-sm text-indigo-500 hover:underline">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button onclick="deleteProduct(${p.id_product})" class="text-sm text-red-500 hover:underline">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+`).join('');
+
 };
 
 /* ---------- Modal ---------- */
 const openModal = (id = null) => {
   editing = id;
   document.getElementById('modalTitle').textContent = id ? 'Edit Product' : 'Create Product';
-  document.getElementById('productName').value = id ? products.find(p => p.id_product === id).product_name : '';
+  if (id) {
+    const product = products.find(p => p.id_product === id);
+    document.getElementById('productName').value = product ? product.product_name : '';
+  } else {
+    document.getElementById('productName').value = '';
+  }
   document.getElementById('modal').classList.remove('hidden');
   document.getElementById('modal').classList.add('grid');
 };

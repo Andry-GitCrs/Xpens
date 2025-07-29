@@ -157,8 +157,8 @@ document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`
     fetch(`${BASE}/products`).then(r => r.json())
   ]);
 
-  const total = purchases.reduce((a, b) => a + b.number * b.unit_price, 0);
-  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total.toFixed(2)}`;
+  const total = purchases.reduce((a, b) => a + Number(b.total_price), 0);
+  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total}`;
   document.getElementById('kpiLists').querySelector('div:last-child').textContent = lists.length;
   document.getElementById('kpiPurchases').querySelector('div:last-child').textContent = purchases.length;
   document.getElementById('kpiProducts').querySelector('div:last-child').textContent = products.length;
