@@ -11,7 +11,10 @@ function get_total_expense_by_product($product_id, $pdo) {
   }
 
   $stmt = $pdo->prepare("
-    SELECT SUM(purchases.total_price) AS total_price
+    SELECT 
+      SUM(purchases.total_price) AS total_price,
+      purchases.unit,
+      COUNT(purchases.id_purchase) AS total_purchases
     FROM purchases 
       JOIN products ON purchases.product_id = products.id_product
       JOIN lists ON purchases.list_id = lists.id_list
@@ -27,6 +30,8 @@ function get_total_expense_by_product($product_id, $pdo) {
   $data = $stmt->fetch(PDO::FETCH_ASSOC);
   return [
     'product_name' => $productCheck->fetch(PDO::FETCH_ASSOC)['product_name'],
+    'total_purchases' => $data['total_purchases'],
+    'unit' => $data['unit'],
     'total_expense' => $data['total_price'] ? $data['total_price'] : 0
   ];
 }

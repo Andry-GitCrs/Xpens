@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/db.php';
+
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -14,14 +15,17 @@ if ($method === 'GET' && isset($_GET['purchase_date']) && isset($_GET['get_total
   $user_id = $_SESSION['user']['id'];
   $date = $_GET['purchase_date'];
   $parsedDate = DateTime::createFromFormat('d-m-Y', $date);
+
   if (!$parsedDate) {
     http_response_code(400);
     echo json_encode(['message' => 'Invalid date format. Expected dd-mm-yyyy.']);
     exit;
   }
+
   $sqlDate = $parsedDate->format('Y-m-d');
 
-  $stmt = $pdo->prepare("
+  // Fetch total expense
+  $stmtTotal = $pdo->prepare("
     SELECT 
       SUM(purchases.total_price) AS total_expense
     FROM purchases
@@ -33,17 +37,42 @@ if ($method === 'GET' && isset($_GET['purchase_date']) && isset($_GET['get_total
       purchases.is_active = 1 AND
       lists.user_id = :user_id
   ");
-  $stmt->bindParam(':user_id', $user_id);
-  $stmt->bindParam(':date', $sqlDate);
-  $stmt->execute();
-  $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $stmtTotal->bindParam(':user_id', $user_id);
+  $stmtTotal->bindParam(':date', $sqlDate);
+  $stmtTotal->execute();
+  $total = $stmtTotal->fetch(PDO::FETCH_ASSOC);
+
+  // Fetch purchases
+  $stmtList = $pdo->prepare("
+    SELECT 
+      purchases.id_purchase,
+      purchases.total_price,
+      purchases.number,
+      purchases.purchase_date,
+      products.product_name,
+      purchases.unit_price
+    FROM purchases
+      JOIN products ON purchases.product_id = products.id_product
+      JOIN lists ON purchases.list_id = lists.id_list
+      JOIN users ON lists.user_id = users.id_user
+    WHERE 
+      DATE(purchases.purchase_date) = :date AND
+      purchases.is_active = 1 AND
+      lists.user_id = :user_id
+    ORDER BY purchases.purchase_date DESC
+  ");
+  $stmtList->bindParam(':user_id', $user_id);
+  $stmtList->bindParam(':date', $sqlDate);
+  $stmtList->execute();
+  $purchases = $stmtList->fetchAll(PDO::FETCH_ASSOC);
+
   echo json_encode([
     'date' => $date,
-    'total_expense' => $data[0]['total_expense'] ? $data[0]['total_expense'] : 0
+    'total_expense' => $total['total_expense'] ?? 0,
+    'purchases' => $purchases
   ]);
-}
-else {
+  
+} else {
   http_response_code(405);
   echo json_encode(["message" => "Method not allowed"]);
-  
 }
