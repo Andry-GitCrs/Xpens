@@ -1,6 +1,18 @@
 <?php
-function getTotalByDate($date, $user_id, $pdo) {
-  // Convert input from dd-mm-yyyy to Y-m-d (MySQL compatible)
+require_once '../../config/db.php';
+header('Content-Type: application/json');
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method === 'GET' && isset($_GET['purchase_date']) && isset($_GET['get_total_expense'])) {
+
+  if ($_GET['get_total_expense'] !== "1") {
+    http_response_code(400);
+    echo json_encode(['message' => 'get_total_expense must be 1, if you want to get the total expense of a product']);
+    exit;
+  }
+
+  $user_id = $_SESSION['user']['id'];
+  $date = $_GET['purchase_date'];
   $parsedDate = DateTime::createFromFormat('d-m-Y', $date);
   if (!$parsedDate) {
     http_response_code(400);
@@ -11,7 +23,7 @@ function getTotalByDate($date, $user_id, $pdo) {
 
   $stmt = $pdo->prepare("
     SELECT 
-      SUM(purchases.total_price) AS total_price
+      SUM(purchases.total_price) AS total_expense
     FROM purchases
       JOIN products ON purchases.product_id = products.id_product
       JOIN lists ON purchases.list_id = lists.id_list
@@ -25,8 +37,13 @@ function getTotalByDate($date, $user_id, $pdo) {
   $stmt->bindParam(':date', $sqlDate);
   $stmt->execute();
   $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  return [
+  echo json_encode([
     'date' => $date,
-    'total_price' => $data[0]['total_price'] ? $data[0]['total_price'] : 0
-  ];
+    'total_expense' => $data[0]['total_expense'] ? $data[0]['total_expense'] : 0
+  ]);
+}
+else {
+  http_response_code(405);
+  echo json_encode(["message" => "Method not allowed"]);
+  
 }

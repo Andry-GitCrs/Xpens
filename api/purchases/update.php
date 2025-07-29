@@ -1,28 +1,20 @@
 <?php
 require_once '../../config/db.php';
-require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'PUT') {
-
-    if (!isAuthenticated()) {
-        http_response_code(401);
-        echo json_encode(['message' => 'User not authenticated']);
-        exit;
-    }
-
     $data = json_decode(file_get_contents('php://input'), true);
     
     if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
         http_response_code(400);
-        echo json_encode(['message' => 'Invalid input, id is required and must be numeric']);
+        echo json_encode(['message' => 'Invalid input, param id is required and must be numeric']);
         exit;
     }
 
     $id = trim($_GET['id']);
 
-    // Fetch existing product
+    // Fetch existing purchase
     $stmt = $pdo->prepare("SELECT * FROM purchases WHERE id_purchase = :id AND is_active = 1");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
@@ -39,7 +31,6 @@ if ($method === 'PUT') {
     $number = isset($data['number']) ? trim($data['number']) : $existingPurchase['number'];
     $unit = isset($data['unit']) ? trim($data['unit']) : $existingPurchase['unit'];
     $unit_price = isset($data['unit_price']) ? trim($data['unit_price']) : $existingPurchase['unit_price'];
-    // $purchase_date = isset($data['purchase_date']) ? trim($data['purchase_date']) : $existingPurchase['purchase_date'];
     $product_id = isset($data['product_id']) ? trim($data['product_id']) : $existingPurchase['product_id'];
     $list_id = isset($data['list_id']) ? trim($data['list_id']) : $existingPurchase['list_id'];
     $is_active = isset($data['is_active']) ? trim($data['is_active']) : $existingPurchase['is_active'];

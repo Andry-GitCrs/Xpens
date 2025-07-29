@@ -1,27 +1,32 @@
 <?php
-function getAllByDate($date, $user_id, $pdo) {
-  // Step 1: Check if $date is a string
-  if (!is_string($date)) {
+require_once '../../config/db.php';
+header('Content-Type: application/json');
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method === 'GET' && isset($_GET['purchase_date'])) {
+  $date = $_GET['purchase_date'];
+  if (trim($date) === "") {
+    http_response_code(400);
+    echo json_encode(['message' => 'param purchase_date cannot be empty']);
+    exit;
+  } if (!is_string($date)) {
     http_response_code(400);
     echo json_encode(['message' => 'Invalid input. Date must be a string.']);
     exit;
   }
 
-  // Step 2: Try to parse the date
   $parsedDate = DateTime::createFromFormat('d-m-Y', $date);
   $errors = DateTime::getLastErrors();
 
-  // Step 3: Check for errors or warnings during parsing
   if (!$parsedDate || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
     http_response_code(400);
     echo json_encode(['message' => 'Invalid date format or value. Expected format: dd-mm-yyyy.']);
     exit;
   }
 
-  // Step 4: Convert to Y-m-d format for SQL
+  // Convert to Y-m-d format for SQL
   $sqlDate = $parsedDate->format('Y-m-d');
 
-  // Step 5: Execute query
   $stmt = $pdo->prepare("
     SELECT purchases.* FROM purchases
       JOIN lists ON purchases.list_id = lists.id_list
@@ -34,5 +39,12 @@ function getAllByDate($date, $user_id, $pdo) {
   $stmt->bindParam(':user_id', $user_id);
   $stmt->bindParam(':date', $sqlDate);
   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  echo json_encode([
+    "date" => $date,
+    "data" => $stmt->fetchAll(PDO::FETCH_ASSOC)
+  ]);
+
+} else {
+  http_response_code(405);
+  echo json_encode(['message' => 'Method not allowed']);
 }

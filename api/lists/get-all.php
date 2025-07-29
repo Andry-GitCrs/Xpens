@@ -1,17 +1,10 @@
 <?php
 require_once '../../config/db.php';
-include '../../helper/auth/index.php';
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-
-    if (!isAuthenticated()) {
-        http_response_code(401);
-        echo json_encode(['message' => 'User not authenticated']);
-        exit;
-    }
 
     $user_id = $_SESSION['user']['id'] ?? null;
     $stmt = $pdo->prepare("

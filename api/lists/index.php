@@ -1,16 +1,32 @@
 <?php
-$method = $_SERVER['REQUEST_METHOD'];
+require_once '../../helper/auth/index.php';
 header('Content-Type: application/json');
-if ($method === 'GET') {
-  require_once 'getAll.php';
-} elseif ($method === 'POST') {
-  require_once 'create.php';
-} elseif ($method === 'PUT') {
-  require_once 'update.php';
-} elseif ($method === 'DELETE') {
-  require_once 'delete.php';
+$method = $_SERVER['REQUEST_METHOD'];
+
+if (!isAuthenticated()) {
+  http_response_code(401);
+  echo json_encode(['message' => 'User not authenticated']);
+  exit;
 }
-else {
+
+$get_all = $method === 'GET';
+$create = $method === 'POST';
+$update = $method === 'PUT';
+$delete = $method === 'DELETE';
+
+if ($get_all) {
+  require_once 'get-all.php';
+
+} elseif ($create) {
+  require_once 'create.php';
+
+} elseif ($update) {
+  require_once 'update.php';
+
+} elseif ($delete) {
+  require_once 'delete.php';
+
+} else {
   http_response_code(405);
-  echo json_encode(array("message" => "Method not allowed"));
+  echo json_encode(["message" => "Method not allowed"]);
 }

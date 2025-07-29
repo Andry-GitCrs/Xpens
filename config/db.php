@@ -1,5 +1,6 @@
 <?php
 require_once 'env.php';
+date_default_timezone_set('Africa/Nairobi');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -8,7 +9,7 @@ loadEnv();
 $host = $_ENV['DB_HOST'] ?? die("Missing DB_HOST in .env");
 $db   = $_ENV['DB_NAME'] ?? die("Missing DB_NAME in .env");
 $user = $_ENV['DB_USER'] ?? die("Missing DB_USER in .env");
-$pass = $_ENV['DB_PASS'] ?? ''; // optional
+$pass = $_ENV['DB_PASS'] ?? '';
 try {
     $pdo = new PDO(
         "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}",
