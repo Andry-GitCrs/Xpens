@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Profile · Xpens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100">
+
+<div class="min-h-screen lg:flex">
+  <!-- Sidebar -->
+  <!-- (Same sidebar from dashboard, keep it identical for consistency) -->
+  <aside class="bg-white dark:bg-slate-800 w-full lg:w-64 border-r border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
+    <div>
+      <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+        <i class="fas fa-wallet text-indigo-600"></i> Xpens
+      </h2>
+      <nav class="space-y-2">
+        <a href="/templates/pages/dashboard.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-chart-line text-indigo-600"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/templates/pages/lists.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-list-ul text-orange-600"></i>
+          <span>Lists</span>
+        </a>
+        <a href="/templates/pages/purchases.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-shopping-cart text-green-600"></i>
+          <span>Purchases</span>
+        </a>
+        <a href="/templates/pages/products.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+          <i class="fas fa-box-open text-blue-600"></i>
+          <span>Products</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-leaf text-green-600"></i>
+        <span>Saving</span>
+        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+      </a>
+
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <span>Bills</span>
+        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+      </a>
+      <a href="/templates/pages/profile.html" class="flex items-center gap-3 p-2 rounded bg-slate-100 dark:bg-slate-700">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-cog text-gray-600"></i>
+        <span>Settings</span>
+      </a>
+      <button id="logoutBtn" class="w-full flex items-center gap-3 p-2 rounded text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-indigo-500">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 overflow-y-auto max-h-screen">
+    <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
+      <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Your Profile</h1>
+        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="p-4 sm:p-6 w-full space-y-6">
+      
+      <!-- Profile Info -->
+      <section class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 space-y-6">
+        <div class="flex items-center gap-5">
+          <div class="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-3xl font-extrabold text-indigo-600">
+            <i class="fas fa-user"></i>
+          </div>
+          <div>
+            <h2 id="username" class="text-2xl font-semibold text-slate-900 dark:text-slate-100">—</h2>
+            <p id="email" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Loading...</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-calendar-check text-yellow-500 dark:text-yellow-400 text-lg"></i>
+            <div>
+              <div class="text-sm text-slate-500 dark:text-slate-400">Joined</div>
+              <div id="joined" class="font-medium text-slate-900 dark:text-slate-100">—</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <i class="fas fa-clock text-green-500 dark:text-green-400 text-lg"></i>
+            <div>
+              <div class="text-sm text-slate-500 dark:text-slate-400">Last Login</div>
+              <div id="lastLogin" class="font-medium text-slate-900 dark:text-slate-100">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- User Stats -->
+      <section id="userStats" class="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-8">
+        <h3 class="text-2xl font-semibold border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">
+          <i class="fas fa-chart-pie text-gray-600 mr-2"></i>Your Spending Summary
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div class="flex items-center gap-4 p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg shadow-inner">
+            <div class="text-indigo-600 dark:text-indigo-300 text-3xl">
+              <i class="fas fa-calendar-day"></i>
+            </div>
+            <div>
+              <div class="text-sm text-indigo-700 dark:text-indigo-400 font-medium">Daily Average Expense</div>
+              <div id="dailyAvg" class="text-indigo-900 dark:text-indigo-200 font-bold text-2xl mt-1">—</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg shadow-inner">
+            <div class="text-indigo-600 dark:text-indigo-300 text-3xl">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+              <div class="text-sm text-indigo-700 dark:text-indigo-400 font-medium">Monthly Average Expense</div>
+              <div id="monthlyAvg" class="text-indigo-900 dark:text-indigo-200 font-bold text-2xl mt-1">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-sm text-slate-500 dark:text-slate-400 mb-3 font-semibold flex items-center gap-2">
+            <i class="fas fa-list-ul text-orange-600"></i> Top 5 Lists by Expense
+          </div>
+          <div id="topLists" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+
+        <div>
+          <div class="text-sm text-slate-500 dark:text-slate-400 mb-3 font-semibold flex items-center gap-2">
+            <i class="fas fa-box-open text-blue-600"></i> Preferred 5 Purchased Product
+          </div>
+          <div id="preferredProduct" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+      </section>
+
+      <!-- Update Profile -->
+      <section class="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-4">
+        <h3 class="text-lg font-semibold">Edit Profile</h3>
+        <form class="grid gap-4">
+          <div>
+            <label class="text-sm block mb-1" for="usernameInput">Username</label>
+            <input id="usernameInput" type="text" class="w-full p-2 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+          </div>
+          <div>
+            <label class="text-sm block mb-1" for="emailInput">Email</label>
+            <input id="emailInput" type="email" class="w-full p-2 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
+          </div>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500">
+            Save Changes
+          </button>
+        </form>
+      </section>
+      <!-- User Stats -->
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE = 'http://localhost:8000/api';
+  const darkMode = () => {
+    document.documentElement.classList.toggle('dark', localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+  };
+  darkMode();
+
+  document.getElementById('themeToggle').onclick = () => {
+    localStorage.theme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+    darkMode();
+  };
+
+  document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`).then(() => location.href = '/');
+
+  // Load user data
+  (async () => {
+    try {
+      const res = await fetch(`${BASE}/users/me`);
+      const data = await res.json();
+
+      // User basic info
+      document.getElementById('username').textContent = data.user.username || 'Anonymous';
+      document.getElementById('email').textContent = data.user.email || 'No email';
+      document.getElementById('joined').textContent = new Date(data.user.created_at).toLocaleDateString();
+      document.getElementById('lastLogin').textContent = new Date(data.user.updated_at).toLocaleDateString();
+
+      document.getElementById('usernameInput').value = data.user.username || '';
+      document.getElementById('emailInput').value = data.user.email || '';
+
+      // Fetch user stats
+      const statsRes = await fetch(`${BASE}/users/me/stats`);
+      const stats = await statsRes.json();
+
+      // Fill stats section
+      document.getElementById('dailyAvg').textContent = stats.daily_avg_expense !== null
+        ? `Ar ${stats.daily_avg_expense.toFixed(2)}`
+        : 'No data';
+
+      document.getElementById('monthlyAvg').textContent = stats.monthly_avg_expense !== null
+        ? `Ar ${stats.monthly_avg_expense.toFixed(2)}`
+        : 'No data';
+
+      // Top lists
+      const topListsEl = document.getElementById('topLists');
+      topListsEl.innerHTML = '';
+      if (stats.top_lists && stats.top_lists.length > 0) {
+        stats.top_lists.forEach(list => {
+        const card = document.createElement('div');
+        card.className = "bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-5 shadow-sm hover:shadow-md transition";
+
+        // Title and expense row
+        const titleRow = document.createElement('div');
+        titleRow.className = "flex justify-between items-center mb-2";
+
+        const title = document.createElement('h4');
+        title.className = "font-semibold text-indigo-600 dark:text-indigo-400 text-lg truncate";
+        title.textContent = list.list_name;
+
+        const expense = document.createElement('span');
+        expense.className = "font-bold text-gray-700 dark:text-gray-300";
+        expense.textContent = `Ar ${parseFloat(list.total_expense).toFixed(2)}`;
+
+        titleRow.appendChild(title);
+        titleRow.appendChild(expense);
+
+        // Created date
+        const createdAt = new Date(list.created_at);
+        const formattedDate = createdAt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+        const date = document.createElement('p');
+        date.className = "text-sm text-slate-500 dark:text-slate-400 mb-2";
+        date.textContent = `Created: ${formattedDate}`;
+
+        // Description with tooltip or fallback text
+        const description = document.createElement('p');
+        description.className = "text-sm text-slate-600 dark:text-slate-300 truncate";
+        description.title = list.description && list.description !== 'No description' ? list.description : '';
+        description.textContent = list.description && list.description !== 'No description' ? list.description : 'No description';
+
+        card.appendChild(titleRow);
+        card.appendChild(date);
+        card.appendChild(description);
+
+        topListsEl.appendChild(card);
+      });
+
+      } else {
+        topListsEl.textContent = 'No lists found.';
+      }
+
+      // Preferred product
+      const prefProdEl = document.getElementById('preferredProduct');
+      if (stats.preferred_product) {
+        stats.preferred_product.forEach(product => {
+          const card = document.createElement('div');
+          card.className = "bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-5 shadow-sm hover:shadow-md transition";
+
+          // Product name and details row
+          const row = document.createElement('div');
+          row.className = "flex justify-between items-center mb-2";
+
+          // Product name (left side)
+          const name = document.createElement('h4');
+          name.className = "font-semibold text-indigo-600 dark:text-indigo-400 text-lg truncate";
+          name.textContent = product.product_name;
+
+          // Container for qty and price (right side)
+          const details = document.createElement('div');
+          details.className = "flex gap-4 items-center";
+
+          const qty = document.createElement('span');
+          qty.className = "font-bold text-gray-700 dark:text-gray-300";
+          qty.textContent = `Qty: ${parseFloat(product.total_quantity).toFixed(2)}`;
+
+          const price = document.createElement('span');
+          price.className = "font-bold text-gray-700 dark:text-gray-300";
+          price.textContent = `Ar ${parseFloat(product.total_expense).toFixed(2)}`;
+
+          details.appendChild(qty);
+          details.appendChild(price);
+
+          row.appendChild(name);
+          row.appendChild(details);
+
+          // Created date
+          const purchase_date = new Date(product.purchase_date);
+          const formattedDate = purchase_date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+
+          const date = document.createElement('p');
+          date.className = "text-sm text-slate-500 dark:text-slate-400";
+          date.textContent = `Purchased on: ${formattedDate}`;
+
+          card.appendChild(row);
+          card.appendChild(date);
+
+          prefProdEl.appendChild(card);
+        });
+
+
+      } else {
+        prefProdEl.textContent = 'No purchases yet.';
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to load profile');
+    }
+  })();
+
+</script>
+</body>
+</html>

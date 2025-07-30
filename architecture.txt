@@ -1,11 +1,72 @@
 Xpens
+│   api
+│   ├── auth
+│   │   ├── login
+│   │   │   └── index.php
+│   │   ├── logout
+│   │   │   └── index.php
+│   │   ├── me
+│   │   │   └── index.php
+│   │   └── register
+│   │       └── index.php
+│   ├── lists
+│   │   ├── create.php
+│   │   ├── delete.php
+│   │   ├── get-all.php
+│   │   ├── index.php
+│   │   └── update.php
+│   ├── products
+│   │   ├── create.php
+│   │   ├── delete.php
+│   │   ├── get-all.php
+│   │   ├── index.php
+│   │   └── update.php
+│   ├── purchases
+│   │   ├── create.php
+│   │   ├── delete.php
+│   │   ├── filter-by-date.php
+│   │   ├── filter-by-list.php
+│   │   ├── get-all.php
+│   │   ├── get-total-expense-by-date-range.php
+│   │   ├── get-total-expense-by-date.php
+│   │   ├── get-total-expense-by-product.php
+│   │   ├── get-total-expense.php
+│   │   ├── index.php
+│   │   └── update.php
+│   └── users
+│       ├── get-all.php
+│       └── index.php
+│   assets
+│   ├── css
+│   │   ├── fontawesome.css
+│   │   └── style.css
+│   └── js
+│       ├── chart.js
+│       └── tailwind.js
+│   config
+│   ├── db.php
+│   ├── env.php
+│   └── init.php
+│   helper
+│   ├── auth
+│   │   └── index.php
+│   └── purchases
+│       ├── get-total-expense-by-product.php
+│       ├── getAllByDateRange.php
+│       └── getAllByProduct.php
 │   templates
 │   ├── pages
 │   │   ├── dashboard.html
 │   │   ├── lists.html
+│   │   ├── login.html
+│   │   ├── products.html
+│   │   ├── profile.html
+│   │   ├── purchases.html
 │   │   └── register.html
 │   └── home.html
 │   .env
 │   .gitignore
+│   API_DOC.md
+│   architecture.txt
 │   index.php
 │   README.md
