@@ -42,7 +42,7 @@ if ($method === 'PUT') {
             exit;
         }
 
-        $date = DateTime::createFromFormat('d-m-Y H:i', $purchase_date);
+        $date = DateTime::createFromFormat('d-m-Y H:i:s', $purchase_date);
         $errors = DateTime::getLastErrors();
 
         if (!$date || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {

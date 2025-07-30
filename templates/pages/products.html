@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../assets/js/tailwind.js"></script>
   <script>
     tailwind.config = { darkMode: 'class' }
   </script>
@@ -52,9 +53,17 @@
 
     <!-- Bottom Section: Extra Links -->
     <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-leaf text-green-600"></i>
+        <span>Saving</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <span>Bills</span>
+      </a>
       <a href="#profile" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-user"></i>
-        <span>Profile</span>
+        <span id="profile">ursername</span>
       </a>
       <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-cog text-gray-600"></i>
@@ -128,6 +137,11 @@ const fetchProducts = async () => {
   document.getElementById('loader').classList.add('hidden');
 };
 
+(async () => {
+  const [total_expense] = await Promise.all([fetch(`${BASE}/purchases?get_total_expense=1`).then(r => r.json())]);
+   document.getElementById('profile').textContent = total_expense.user.username;
+})()
+
 /* ---------- Render ---------- */
 const render = () => {
   const c = document.getElementById('productContainer');
@@ -159,7 +173,8 @@ const openModal = (id = null) => {
   editing = id;
   document.getElementById('modalTitle').textContent = id ? 'Edit Product' : 'Create Product';
   if (id) {
-    const product = products.find(p => p.id_product === id);
+    const product = products.find(p => p.id_product == id);
+    console.log(product)
     document.getElementById('productName').value = product ? product.product_name : '';
   } else {
     document.getElementById('productName').value = '';

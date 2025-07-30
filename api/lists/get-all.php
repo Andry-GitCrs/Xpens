@@ -14,8 +14,11 @@ if ($method === 'GET') {
             SUM(purchases.total_price) AS total_expense
         FROM lists
             LEFT JOIN purchases ON lists.id_list = purchases.list_id
-            WHERE lists.is_active = 1 AND lists.user_id = :user_id
+        WHERE 
+            lists.is_active = 1 AND
+            lists.user_id = :user_id
         GROUP BY lists.id_list
+        ORDER BY lists.updated_at DESC
     ");
     $stmt->bindParam(':user_id', $user_id);
     $stmt->execute();

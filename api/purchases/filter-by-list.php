@@ -39,6 +39,7 @@ if ($method === 'GET' && isset($_GET["list_id"])) {
       purchases.is_active = 1 AND
       users.id_user = :user_id AND
       lists.id_list = :id_list
+    ORDER BY purchases.purchase_date DESC
   ");
   $stmt->bindParam(':id_list', $id_list);
   $stmt->bindParam(':user_id', $user_id);

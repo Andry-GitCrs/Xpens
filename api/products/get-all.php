@@ -13,6 +13,7 @@ if ($method === 'GET') {
             LEFT JOIN purchases ON products.id_product = purchases.product_id
         WHERE products.is_active = 1
         GROUP BY products.id_product
+        ORDER BY purchases.purchase_date DESC
     ");
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($data);

@@ -50,9 +50,17 @@
 
     <!-- Bottom Section: Extra Links -->
     <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-leaf text-green-600"></i>
+        <span>Saving</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <span>Bills</span>
+      </a>
       <a href="#profile" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-user"></i>
-        <span>Profile</span>
+        <span id="profile">ursername</span>
       </a>
       <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-cog text-gray-600"></i>
@@ -107,7 +115,9 @@
 <div id="modal" class="fixed inset-0 bg-black/40 hidden place-items-center z-30">
   <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md space-y-3">
     <h2 id="modalTitle">New Purchase</h2>
+    <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">Select product</label>
     <select id="productSel" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"></select>
+    <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">Select list</label>
     <select id="listSel" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"></select>
     <input id="number" type="number" min="1" placeholder="Quantity" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
     <input id="unit" placeholder="Unit (e.g. kg)" class="w-full px-3 py-2 rounded border border-slate-300 dark:border-slate-600 bg-transparent">
@@ -135,6 +145,10 @@ const load=async()=>{
   ]);
   populateFilters(); render();
 };
+(async () => {
+  const [total_expense] = await Promise.all([fetch(`${BASE}/purchases?get_total_expense=1`).then(r => r.json())]);
+  document.getElementById('profile').textContent = total_expense.user.username;
+})()
 const populateFilters=()=>{
   const l=document.getElementById('listFilter');l.innerHTML='<option value="">All Lists</option>'+lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
   const p=document.getElementById('productSel');p.innerHTML=products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
@@ -159,7 +173,7 @@ const render= async ()=>{
         <th class="p-2 text-left">Product</th>
         <th class="p-2 text-left">List</th>
         <th class="p-2 text-left">Qty</th>
-        <th class="p-2 text-right">Amount</th>
+        <th class="p-2 text-right">Amount <span class="text-slate-400 text-xs">(Ar)</span></th>
         <th class="p-2 text-right">Date</th>
         <th class="p-2 text-right">Actions</th>
       </tr>
@@ -170,7 +184,7 @@ const render= async ()=>{
           <td class="p-2 font-medium">${p.product_name || '-'}</td>
           <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
           <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
-          <td class="p-2 text-right">Ar ${(parseFloat(p.unit_price) * parseFloat(p.number)).toFixed(2)}</td>
+          <td class="p-2 text-right">${(parseFloat(p.unit_price) * parseFloat(p.number)).toFixed(2)}</td>
           <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleString('fr-FR', { hour12: false })}</td>
           <td class="p-2 text-right text-sm space-x-1">
             <button onclick="editPurchase(${p.id_purchase})" class="text-indigo-500 hover:underline"><i class="fas fa-edit"></i></button>
@@ -293,15 +307,14 @@ const openModal = (id = null) => {
 
     // Map model keys to element IDs
     const fieldMap = {
-      productSel: 'productSel',
-      listSel: 'listSel',
+      id_product: 'productSel',
+      id_list: 'listSel',
       number: 'number',
       unit: 'unit',
       unit_price: 'price',
       purchase_date: 'purchaseDate',
       description: 'desc',
     };
-
     for (const [key, elementId] of Object.entries(fieldMap)) {
       const el = document.getElementById(elementId);
       if (el) el.value = p[key] ?? '';
@@ -332,6 +345,8 @@ document.getElementById('saveBtn').onclick=async()=>{
     purchase_date:toServerDatetimeFormat(document.getElementById('purchaseDate').value),
     description:document.getElementById('desc').value
   };
+  
+  console.log(toServerDatetimeFormat(document.getElementById('purchaseDate').value))
   if(!body.number||!body.unit_price){toast('Fill required fields','error');return;}
   const method=editing?'PUT':'POST';
   const url=editing?`${BASE}/purchases?id=${editing}`:`${BASE}/purchases`;

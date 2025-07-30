@@ -52,9 +52,17 @@
 
     <!-- Bottom Section: Extra Links -->
     <div class="space-y-2 pt-4 mt-6 border-t border-slate-200 dark:border-slate-700">
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-leaf text-green-600"></i>
+        <span>Saving</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <span>Bills</span>
+      </a>
       <a href="#profile" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-user"></i>
-        <span>Profile</span>
+        <span id="profile">ursername</span>
       </a>
       <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-cog text-gray-600"></i>
@@ -91,15 +99,24 @@
           <div class="text-2xl font-bold text-indigo-600">—</div>
         </div>
         <div id="kpiLists" onclick="window.location.href='/templates/pages/lists.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">Lists</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            <i class="fas fa-list-ul"></i>
+            Lists
+          </div>
           <div class="text-2xl font-bold text-sky-600">—</div>
         </div>
         <div id="kpiPurchases" onclick="window.location.href='/templates/pages/purchases.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">Purchases</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            <i class="fab fa-shopify"></i>
+            Purchases
+          </div>
           <div class="text-2xl font-bold text-emerald-600">—</div>
         </div>
         <div id="kpiProducts" onclick="window.location.href='/templates/pages/products.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">Products</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            <i class="fas fa-box-open"></i>
+            Products
+          </div>
           <div class="text-2xl font-bold text-amber-600">—</div>
         </div>
       </section>
@@ -151,14 +168,15 @@ document.getElementById('themeToggle').onclick = () => {
 document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`).then(() => location.href = '/');
 
 (async () => {
-  const [lists, purchases, products] = await Promise.all([
+  const [lists, purchases, products, total_expense] = await Promise.all([
     fetch(`${BASE}/lists`).then(r => r.json()),
     fetch(`${BASE}/purchases`).then(r => r.json()),
-    fetch(`${BASE}/products`).then(r => r.json())
+    fetch(`${BASE}/products`).then(r => r.json()),
+    fetch(`${BASE}/purchases?get_total_expense=1`).then(r => r.json()),
   ]);
 
-  const total = purchases.reduce((a, b) => a + Number(b.total_price), 0);
-  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total}`;
+  document.getElementById('profile').textContent = total_expense.user.username;
+  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total_expense.total_expense}`;
   document.getElementById('kpiLists').querySelector('div:last-child').textContent = lists.length;
   document.getElementById('kpiPurchases').querySelector('div:last-child').textContent = purchases.length;
   document.getElementById('kpiProducts').querySelector('div:last-child').textContent = products.length;
@@ -250,7 +268,7 @@ new Chart(document.getElementById('topProductsChart'), {
         <th class="p-2 text-left">Product</th>
         <th class="p-2 text-left">List</th>
         <th class="p-2 text-left">Qty</th>
-        <th class="p-2 text-right">Amount</th>
+        <th class="p-2 text-right">Amount <span class="text-slate-400 text-xs">(Ar)</span></th>
         <th class="p-2 text-right">Date</th>
       </tr>
     </thead>
@@ -260,7 +278,7 @@ new Chart(document.getElementById('topProductsChart'), {
           <td class="p-2 font-medium">${p.product_name || '-'}</td>
           <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
           <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
-          <td class="p-2 text-right">Ar ${(+p.unit_price * +p.number).toFixed(2)}</td>
+          <td class="p-2 text-right">${(+p.unit_price * +p.number).toFixed(2)}</td>
           <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString()}</td>
         </tr>
       `).join('')}
