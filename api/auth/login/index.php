@@ -40,10 +40,7 @@ if ($method === 'POST') {
 
     $user = $existingUsernameCheck->fetch(PDO::FETCH_ASSOC);
 
-    // // Check if the password is correct
-    // $password = password_hash($password, PASSWORD_DEFAULT);
-
-    if ($password !== $user['password']) {
+    if (!password_verify($password, $user['password'])) {
       http_response_code(401);
       echo json_encode(['message' => 'Wrong password']);
       exit;

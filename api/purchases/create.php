@@ -143,7 +143,7 @@ if ($method === 'POST') {
         $existingPurchaseCheck->execute();
         if ($existingPurchaseCheck->rowCount() > 0) {
             http_response_code(409);
-            echo json_encode(['message' => 'Purchase already exists, update it instead']);
+            echo json_encode(['message' => 'Purchase already exists in this list, update it instead']);
             exit;
         }
 
