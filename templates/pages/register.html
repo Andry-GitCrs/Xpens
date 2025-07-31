@@ -101,7 +101,7 @@
 
         if (res.ok) {
           showToast(json.message || 'Account created!');
-          setTimeout(() => location.href = '/', 1200);
+          setTimeout(() => location.href = '/templates/pages/login.html', 1200);
         } else {
           showToast(json.message || 'Registration failed', 'error');
         }

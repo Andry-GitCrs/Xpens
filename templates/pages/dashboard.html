@@ -13,8 +13,8 @@
     tailwind.config = { darkMode: 'class' }
   </script>
   <style>
-    .loader { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .loader{height:1rem;border-radius:10px;background:#e5e7eb;width:100%;}
+    .dark .loader{background:#374151;}
     .toast { position: fixed; top: 1rem; right: 1rem; max-width: 20rem; padding: .75rem 1rem; color: #fff; border-radius: .5rem; font-size: .875rem; z-index: 50; transition: transform .3s; transform: translateX(110%); }
     .toast.show { transform: translateX(0); }
     .toast.success { background: #10b981; } .toast.error { background: #ef4444; }
@@ -28,7 +28,7 @@
     <!-- Top Section: Logo + Main Navigation -->
     <div>
       <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
-        <i class="fas fa-wallet text-indigo-600"></i> Xpens
+        <i class="fas fa-wallet text-indigo-600"></i><span><span class="text-yellow-500">X</span>pens</span>
       </h2>
       <nav class="space-y-2">
         <a href="/templates/pages/dashboard.html" class="bg-slate-100 dark:bg-slate-700 flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
@@ -55,17 +55,17 @@
       <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-leaf text-green-600"></i>
         <span>Saving</span>
-        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+        <span class="ml-auto text-xs font-semibold text-yellow-500 rounded-full px-2 py-0.5 flex items-center gap-1"><i class="fas fa-gem"></i> <span class="text-[10px]">pro</span> </span>
       </a>
 
       <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
-        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <i class="fas fa-money-check-dollar text-blue-600"></i>
         <span>Bills</span>
-        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+        <span class="ml-auto text-xs font-semibold text-yellow-500 rounded-full px-2 py-0.5 flex items-center gap-1"><i class="fas fa-gem"></i> <span class="text-[10px]">pro</span> </span>
       </a>
 
       <a href="/templates/pages/profile.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
-        <i class="fas fa-user"></i>
+        <i class="fas fa-user ps-[2px]"></i>
         <span id="profile">ursername</span>
       </a>
       <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
@@ -89,7 +89,7 @@
     <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
       <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
         <h1 class="text-xl font-bold">Dashboard</h1>
-        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+        <button id="themeToggle" class="w-[40px] h-[40px] p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
           <i class="fas fa-moon"></i>
         </button>
       </div>
@@ -99,7 +99,7 @@
       <!-- KPI cards -->
       <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div id="kpiTotal" class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">Total Spent</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">Today expense</div>
           <div class="text-2xl font-bold text-indigo-600">—</div>
         </div>
         <div id="kpiLists" onclick="window.location.href='/templates/pages/lists.html'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
@@ -139,7 +139,7 @@
 
       <!-- Recent purchases -->
       <section>
-        <h2 class="font-semibold mb-2">Recent Purchases</h2>
+        <h2 class="font-semibold mb-2">5 Recent Purchases</h2>
         <div id="recentPurchases" class="bg-white dark:bg-slate-800 rounded-xl shadow overflow-x-auto p-3">
           <div class="loader w-full h-32"></div>
         </div>
@@ -180,14 +180,37 @@ document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`
   ]);
 
   document.getElementById('profile').textContent = total_expense.user.username;
-  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${total_expense.total_expense}`;
+  document.getElementById('kpiTotal').querySelector('div:last-child').textContent = `Ar ${Number(total_expense.total_expense).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   document.getElementById('kpiLists').querySelector('div:last-child').textContent = lists.length;
   document.getElementById('kpiPurchases').querySelector('div:last-child').textContent = purchases.length;
   document.getElementById('kpiProducts').querySelector('div:last-child').textContent = products.length;
 
   const byDate = {};
   purchases.forEach(p => {
-    const day = p.purchase_date.split(' ')[0];
+    const today = new Date();
+    const purchaseDate = new Date(p.purchase_date.split(' ')[0]);
+
+    // Remove time portion
+    today.setHours(0, 0, 0, 0);
+    purchaseDate.setHours(0, 0, 0, 0);
+
+    // Calculate difference in days
+    const timeDiff = today - purchaseDate;
+    const diffDays = timeDiff / (1000 * 60 * 60 * 24);
+
+    // Format the display
+    let day;
+    if (diffDays === 0) {
+      day = "Today";
+    } else if (diffDays === 1) {
+      day = "Yesterday";
+    } else {
+      day = purchaseDate.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
     byDate[day] = (byDate[day] || 0) + p.number * p.unit_price;
   });
   new Chart(document.getElementById('spendChart'), {
@@ -208,63 +231,62 @@ document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`
   });
 
   const prodMap = {};
-purchases.forEach(p => {
-  const name = p.product_name || 'Unknown';
-  const price = parseFloat(p.unit_price);
-  const qty = parseFloat(p.number);
+  purchases.forEach(p => {
+    const name = p.product_name || 'Unknown';
+    const price = parseFloat(p.unit_price);
+    const qty = parseFloat(p.number);
 
-  if (!prodMap[name]) {
-    prodMap[name] = { total: 0, qty: 0 };
-  }
+    if (!prodMap[name]) {
+      prodMap[name] = { total: 0, qty: 0 };
+    }
 
-  prodMap[name].total += price * qty;
-  prodMap[name].qty += qty;
-});
+    prodMap[name].total += price * qty;
+    prodMap[name].qty += qty;
+  });
 
-// Get top 5 by total spent
-const top = Object.entries(prodMap)
-  .sort((a, b) => b[1].total - a[1].total)
-  .slice(0, 5);
+  // Get top 5 by total spent
+  const top = Object.entries(prodMap)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 5);
 
-// Extract labels and values
-const labels = top.map(([name]) => name);
-const totalValues = top.map(([, val]) => val.total);
-const qtyValues = top.map(([, val]) => val.qty);
+  // Extract labels and values
+  const labels = top.map(([name]) => name);
+  const totalValues = top.map(([, val]) => val.total);
+  const qtyValues = top.map(([, val]) => val.qty);
 
-// Chart: Side-by-side bar chart (use 'bar' and stack false)
-new Chart(document.getElementById('topProductsChart'), {
-  type: 'bar',
-  data: {
-    labels,
-    datasets: [
-      {
-        label: 'Total Ar Spent',
-        data: totalValues,
-        backgroundColor: '#10b981'
-      },
-      {
-        label: 'Quantity',
-        data: qtyValues,
-        backgroundColor: '#3b82f6'
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    scales: {
-      x: {
-        stacked: false
-      },
-      y: {
-        beginAtZero: true,
-        stacked: false
+  // Chart: Side-by-side bar chart (use 'bar' and stack false)
+  new Chart(document.getElementById('topProductsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Total Ar Spent',
+          data: totalValues,
+          backgroundColor: '#10b981'
+        },
+        {
+          label: 'Quantity',
+          data: qtyValues,
+          backgroundColor: '#3b82f6'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          stacked: false
+        },
+        y: {
+          beginAtZero: true,
+          stacked: false
+        }
       }
     }
-  }
-});
+  });
 
-  const recent = purchases.slice(-5).reverse();
-  console.log(recent);
+  const recent = purchases.slice(0, 5);
   document.getElementById('recentPurchases').innerHTML = `
   <table class="w-full text-sm">
     <thead class="border-b border-slate-200 dark:border-slate-700">
@@ -282,8 +304,8 @@ new Chart(document.getElementById('topProductsChart'), {
           <td class="p-2 font-medium">${p.product_name || '-'}</td>
           <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
           <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
-          <td class="p-2 text-right">${(+p.unit_price * +p.number).toFixed(2)}</td>
-          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString()}</td>
+          <td class="p-2 text-right">${Number(p.total_price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</td>
         </tr>
       `).join('')}
     </tbody>

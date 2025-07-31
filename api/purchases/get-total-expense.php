@@ -14,17 +14,18 @@ if ($method === 'GET' && isset($_GET['get_total_expense'])) {
 
   $user_id = $_SESSION['user']['id'];
   // Fetch total expense
-  $stmtTotal = $pdo->prepare("
-    SELECT 
-      SUM(purchases.total_price) AS total_expense
-    FROM purchases
-      JOIN products ON purchases.product_id = products.id_product
-      JOIN lists ON purchases.list_id = lists.id_list
-      JOIN users ON lists.user_id = users.id_user
-    WHERE 
-      purchases.is_active = 1 AND
-      lists.is_active = 1 AND
-      lists.user_id = :user_id
+  $stmtTotal = $pdo->prepare(" 
+      SELECT 
+        SUM(purchases.total_price) AS total_expense
+      FROM purchases
+        JOIN products ON purchases.product_id = products.id_product
+        JOIN lists ON purchases.list_id = lists.id_list
+        JOIN users ON lists.user_id = users.id_user
+      WHERE
+        DATE(purchases.purchase_date) = CURRENT_DATE AND
+        purchases.is_active = 1 AND
+        lists.is_active = 1 AND
+        lists.user_id = :user_id
   ");
   $stmtTotal->bindParam(':user_id', $user_id);
   $stmtTotal->execute();

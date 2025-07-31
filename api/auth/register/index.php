@@ -49,6 +49,7 @@ if ($method === 'POST') {
     }
 
     // Hash user password
+    // $password = password_hash($password, PASSWORD_DEFAULT);
 
     // Insert into users
     $stmt = $pdo->prepare("

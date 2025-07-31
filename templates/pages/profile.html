@@ -20,7 +20,7 @@
   <aside class="bg-white dark:bg-slate-800 w-full lg:w-64 border-r border-slate-200 dark:border-slate-700 p-4 flex flex-col justify-between">
     <div>
       <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
-        <i class="fas fa-wallet text-indigo-600"></i> Xpens
+        <i class="fas fa-wallet text-indigo-600"></i><span><span class="text-yellow-500">X</span>pens</span>
       </h2>
       <nav class="space-y-2">
         <a href="/templates/pages/dashboard.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
@@ -46,13 +46,13 @@
       <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-leaf text-green-600"></i>
         <span>Saving</span>
-        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+        <span class="ml-auto text-xs font-semibold text-yellow-500 rounded-full px-2 py-0.5 flex items-center gap-1"><i class="fas fa-gem"></i> <span class="text-[10px]">pro</span> </span>
       </a>
 
       <a href="#" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
-        <i class="fas fa-money-check-dollar text-blue-200"></i>
+        <i class="fas fa-money-check-dollar text-blue-600"></i>
         <span>Bills</span>
-        <span class="ml-auto text-xs font-semibold text-white bg-yellow-600 rounded-full px-2 py-0.5">PRO</span>
+        <span class="ml-auto text-xs font-semibold text-yellow-500 rounded-full px-2 py-0.5 flex items-center gap-1"><i class="fas fa-gem"></i> <span class="text-[10px]">pro</span> </span>
       </a>
       <a href="/templates/pages/profile.html" class="flex items-center gap-3 p-2 rounded bg-slate-100 dark:bg-slate-700">
         <i class="fas fa-user"></i>
@@ -61,6 +61,10 @@
       <a href="#settings" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-cog text-gray-600"></i>
         <span>Settings</span>
+      </a>
+      <a href="#bug-report" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <i class="fas fa-bug text-yellow-600"></i>
+        <span>Bug Report</span>
       </a>
       <button id="logoutBtn" class="w-full flex items-center gap-3 p-2 rounded text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-indigo-500">
         <i class="fas fa-sign-out-alt"></i>
@@ -74,7 +78,7 @@
     <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
       <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
         <h1 class="text-xl font-bold">Your Profile</h1>
-        <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+        <button id="themeToggle" class="w-[40px] h-[40px] p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
           <i class="fas fa-moon"></i>
         </button>
       </div>
@@ -156,7 +160,7 @@
       </section>
 
       <!-- Update Profile -->
-      <section class="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-4">
+      <section class="bg-white w-[50%] mx-auto dark:bg-slate-800 rounded-xl shadow p-7 space-y-4">
         <h3 class="text-lg font-semibold">Edit Profile</h3>
         <form class="grid gap-4">
           <div>
@@ -200,8 +204,8 @@
       // User basic info
       document.getElementById('username').textContent = data.user.username || 'Anonymous';
       document.getElementById('email').textContent = data.user.email || 'No email';
-      document.getElementById('joined').textContent = new Date(data.user.created_at).toLocaleDateString();
-      document.getElementById('lastLogin').textContent = new Date(data.user.updated_at).toLocaleDateString();
+      document.getElementById('joined').textContent = new Date(data.user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+      document.getElementById('lastLogin').textContent = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
 
       document.getElementById('usernameInput').value = data.user.username || '';
       document.getElementById('emailInput').value = data.user.email || '';
@@ -212,11 +216,11 @@
 
       // Fill stats section
       document.getElementById('dailyAvg').textContent = stats.daily_avg_expense !== null
-        ? `Ar ${stats.daily_avg_expense.toFixed(2)}`
+        ? `Ar ${Number(stats.daily_avg_expense).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
         : 'No data';
 
       document.getElementById('monthlyAvg').textContent = stats.monthly_avg_expense !== null
-        ? `Ar ${stats.monthly_avg_expense.toFixed(2)}`
+        ? `Ar ${Number(stats.monthly_avg_expense).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
         : 'No data';
 
       // Top lists
@@ -237,7 +241,7 @@
 
         const expense = document.createElement('span');
         expense.className = "font-bold text-gray-700 dark:text-gray-300";
-        expense.textContent = `Ar ${parseFloat(list.total_expense).toFixed(2)}`;
+        expense.textContent = `Ar ${Number(list.total_expense).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
         titleRow.appendChild(title);
         titleRow.appendChild(expense);
@@ -293,7 +297,7 @@
 
           const price = document.createElement('span');
           price.className = "font-bold text-gray-700 dark:text-gray-300";
-          price.textContent = `Ar ${parseFloat(product.total_expense).toFixed(2)}`;
+          price.textContent = `Ar ${Number(product.total_expense).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
           details.appendChild(qty);
           details.appendChild(price);

@@ -27,6 +27,7 @@ if ($method === 'GET' && isset($_GET["list_id"])) {
       purchases.unit_price,
       purchases.unit,
       purchases.total_price,
+      products.id_product,
       products.product_name,
       purchases.created_at,
       purchases.updated_at,

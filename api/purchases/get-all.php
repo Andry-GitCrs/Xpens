@@ -28,7 +28,7 @@ if ($method === 'GET') {
       purchases.is_active = 1 AND
       lists.is_active = 1 AND
       lists.user_id = :user_id
-    ORDER BY purchases.updated_at DESC
+    ORDER BY purchases.purchase_date DESC
   ");
   $stmt->bindParam(':user_id', $user_id);
   $stmt->execute();

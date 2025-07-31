@@ -27,7 +27,7 @@ if ($method === 'POST') {
       exit;
     }
 
-    // Check if the user with the username already exist
+    // Check if the user with the username exist
     $existingUsernameCheck = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
     $existingUsernameCheck->bindParam(':username', $username);
     $existingUsernameCheck->execute();
@@ -39,6 +39,9 @@ if ($method === 'POST') {
     }
 
     $user = $existingUsernameCheck->fetch(PDO::FETCH_ASSOC);
+
+    // // Check if the password is correct
+    // $password = password_hash($password, PASSWORD_DEFAULT);
 
     if ($password !== $user['password']) {
       http_response_code(401);

@@ -42,7 +42,7 @@ if ($method === 'PUT') {
             exit;
         }
 
-        $date = DateTime::createFromFormat('d-m-Y H:i:s', $purchase_date);
+        $date = DateTime::createFromFormat('d-m-Y H:i', $purchase_date);
         $errors = DateTime::getLastErrors();
 
         if (!$date || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
@@ -52,7 +52,7 @@ if ($method === 'PUT') {
         }
 
         // Convert to SQL format
-        $sqlFormattedDate = $date->format('Y-m-d H:i:s');
+        $sqlFormattedDate = $date->format('Y-m-d H:i');
     } else {
         http_response_code(400);
         echo json_encode(['message' => 'Invalid or missing "purchase_date". Must be in format dd-mm-yyyy HH:ii and valid.']);
@@ -137,7 +137,7 @@ if ($method === 'PUT') {
 
     if ($updateStmt->execute()) {
 
-        $updated_at = date('Y-m-d H:i:s');
+        $updated_at = date('Y-m-d H:i');
 
         // Fetch updated row to return (including generated total_price, timestamps)
         $fetchStmt = $pdo->prepare("SELECT * FROM purchases WHERE id_purchase = :id");
