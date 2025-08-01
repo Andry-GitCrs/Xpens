@@ -3,6 +3,42 @@
 
 This documentation provides a complete overview of the Xpens API, designed to facilitate the development of a user interface.
 
+## Project Features
+
+### Authentication
+- **User Registration:** Create a new user account.
+- **User Login:** Authenticate and start a session.
+- **User Logout:** Terminate the current session.
+
+### User Management
+- **Get All Users:** Retrieve a list of all registered users.
+
+### List Management
+- **Create Lists:** Add new shopping or expense lists.
+- **View Lists:** See all lists belonging to the authenticated user.
+- **Update Lists:** Modify the name or description of existing lists.
+- **Delete Lists:** Remove unwanted lists.
+
+### Product Management
+- **Create Products:** Add new products that can be purchased.
+- **View Products:** Get a list of all available products.
+- **Update Products:** Change the name of a product.
+- **Delete Products:** Remove products from the system.
+
+### Purchase Tracking
+- **Log Purchases:** Record new purchases with details like number of items, unit, unit price, and description.
+- **View Purchases:** Get a complete history of all purchases.
+- **Update Purchases:** Modify details of a previously logged purchase.
+- **Delete Purchases:** Remove purchase records.
+
+### Expense Filtering and Reporting
+- **Filter by List:** View all purchases associated with a specific list.
+- **Filter by Date:** See all purchases made on a particular date.
+- **Filter by Date Range:** Analyze expenses within a specific period.
+- **Total Expense by Product:** Calculate the total amount spent on a single product.
+- **Total Expense by Date:** Sum up all expenses for a specific day.
+- **Total Expense by Date Range:** Get the total expenses over a range of dates.
+
 ## Base URL
 
 The base URL for all API endpoints is: `https://domain.com/api`
