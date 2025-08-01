@@ -24,7 +24,7 @@ if ($method === 'GET') {
     $stmt->execute(['user_id' => $user_id]);
     $dailyAvg = $stmt->fetchColumn();
 
-    // 3. Top 5 lists by total expense
+    // 2. Top 5 lists by total expense
     $stmt = $pdo->prepare("
         SELECT l.*, SUM(pu.total_price) AS total_expense
         FROM purchases pu
@@ -38,7 +38,7 @@ if ($method === 'GET') {
     $stmt->execute(['user_id' => $user_id]);
     $topLists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 4. Preferred purchased product
+    // 3. Preferred purchased product
     $stmt = $pdo->prepare("
         SELECT p.*, pu.purchase_date, SUM(pu.number) AS total_quantity, SUM(pu.total_price) AS total_expense
         FROM purchases pu

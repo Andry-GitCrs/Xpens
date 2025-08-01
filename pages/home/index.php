@@ -1,3 +1,14 @@
+<?php 
+  require_once __DIR__ . '/../../config/db.php';
+  $button = [
+    'label' => 'Sing in',
+    'link' => '/pages/login'
+  ];
+  if(isset($_SESSION['user'])) {
+    $button['label'] = 'Mine';
+    $button['link'] = '/pages/dashboard';
+  }
+?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -31,9 +42,9 @@
           <a href="#pricing" class="hover:text-indigo-600 dark:hover:text-indigo-400">Pricing</a>
         </nav>
         <div class="flex items-center space-x-3">
-          <a href="/pages/login"
+          <a href="<?php echo $button['link'] ?>"
             class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700">
-            Sing in
+            <?php echo $button['label'] ?>
           </a>
           <a href="/pages/register"
             class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700">

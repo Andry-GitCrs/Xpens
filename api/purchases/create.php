@@ -136,17 +136,6 @@ if ($method === 'POST') {
             exit;
         }
 
-        // Check if purchase already exists
-        $existingPurchaseCheck = $pdo->prepare("SELECT * FROM purchases WHERE list_id = :list_id AND product_id = :product_id AND is_active = 1");
-        $existingPurchaseCheck->bindParam(':list_id', $list_id); 
-        $existingPurchaseCheck->bindParam(':product_id', $product_id);
-        $existingPurchaseCheck->execute();
-        if ($existingPurchaseCheck->rowCount() > 0) {
-            http_response_code(409);
-            echo json_encode(['message' => 'Purchase already exists in this list, update it instead']);
-            exit;
-        }
-
         // Insert into purchases
         $stmt = $pdo->prepare("
             INSERT INTO purchases 

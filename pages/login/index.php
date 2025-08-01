@@ -1,3 +1,9 @@
+<?php 
+  require_once '../../config/db.php';
+  if(isset($_SESSION['user'])) {
+    header("location: /pages/dashboard");
+  }
+?>
 <!doctype html>
 <html lang="en" class="dark">
 <head>

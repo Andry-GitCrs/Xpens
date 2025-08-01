@@ -1,3 +1,10 @@
+<?php 
+  require_once __DIR__ . '/../../config/db.php';
+  if(!isset($_SESSION['user'])) {
+    header("HTTP/1.1 403 Forbidden");
+    exit;
+  }
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -166,7 +173,7 @@
 </div>
 
 <script>
-  const BASE = 'http://localhost:8000/api';
+  const BASE = '/api';
   const darkMode = () => {
     document.documentElement.classList.toggle('dark', localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
   };

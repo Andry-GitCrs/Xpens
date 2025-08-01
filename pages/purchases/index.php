@@ -1,3 +1,10 @@
+<?php 
+  require_once __DIR__ . '/../../config/db.php';
+  if(!isset($_SESSION['user'])) {
+    header("HTTP/1.1 403 Forbidden");
+    exit;
+  }
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -224,7 +231,7 @@
 
 <div id="toast" class="toast"></div>
 <script>
-const BASE='http://localhost:8000/api';
+const BASE='/api';
 const toast=(m,t='success')=>{const el=document.getElementById('toast');el.textContent=m;el.className=`toast ${t}`;setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>el.classList.remove('show'),3000);};
 let purchases=[],products=[],lists=[],chart,editing=null;
 

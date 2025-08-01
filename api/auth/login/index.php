@@ -7,7 +7,9 @@ if ($method === 'POST') {
 
     if(isset($_SESSION['user'])) {
       http_response_code(401);
-      echo json_encode(['message' =>   'User ' . $_SESSION['user']['username'] . ' is already logged in. Please log out first.']);
+      echo json_encode([
+        'message' => 'User ' . $_SESSION['user']['username'] . ' is already logged in. Please log out first or enter.'
+      ]);
       exit;
     }
 
