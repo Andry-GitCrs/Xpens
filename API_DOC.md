@@ -5,7 +5,7 @@ This documentation provides a complete overview of the Xpens API, designed to fa
 
 ## Base URL
 
-The base URL for all API endpoints is: `https://your-domain.com/api`
+The base URL for all API endpoints is: `https://domain.com/api`
 
 ## Authentication
 

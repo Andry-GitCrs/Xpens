@@ -15,15 +15,15 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-*   PHP
+*   PHP 
 *   MySQL
-*   A web server (e.g., Apache, Nginx)
+*   A web server (e.g., Apache, Nginx); i made it with PHP 7.3.12 using the Development Server
 
 ### Installation
 
 1.  Clone the repo
     ```sh
-    git clone https://example.com/your_username/Xpens.git
+    git clone https://github.com/Andry-GitCrs/Xpens.git
     ```
 2.  Create a `.env` file in the root directory and add the following environment variables:
     ```
@@ -32,7 +32,11 @@ These instructions will get you a copy of the project up and running on your loc
     DB_USER=your_db_user
     DB_PASS=your_db_password
     ```
-3.  Navigate to `config/init.php` in your browser to initialize the database tables.
+3.  Run 
+    ```sh
+    php -S localhost:8000
+    ``` 
+4. Navigate to `/` in your browser to initialize the database tables.
 
 ## API Endpoints
 

@@ -23,19 +23,19 @@
         <i class="fas fa-wallet text-indigo-600"></i><span><span class="text-yellow-500">X</span>pens</span>
       </h2>
       <nav class="space-y-2">
-        <a href="/templates/pages/dashboard.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <a href="/pages/dashboard" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
           <i class="fas fa-chart-line text-indigo-600"></i>
           <span>Dashboard</span>
         </a>
-        <a href="/templates/pages/lists.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <a href="/pages/lists" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
           <i class="fas fa-list-ul text-orange-600"></i>
           <span>Lists</span>
         </a>
-        <a href="/templates/pages/purchases.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <a href="/pages/purchases" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
           <i class="fas fa-shopping-cart text-green-600"></i>
           <span>Purchases</span>
         </a>
-        <a href="/templates/pages/products.html" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+        <a href="/pages/products" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
           <i class="fas fa-box-open text-blue-600"></i>
           <span>Products</span>
         </a>
@@ -58,7 +58,7 @@
         <i class="fas fa-cog text-gray-600"></i>
         <span>Settings</span>
       </a>
-      <a href="#bug-report" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+      <a href="mailto: andrianaivonoe403@gmail.com" class="flex items-center gap-3 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
         <i class="fas fa-bug text-yellow-600"></i>
         <span>Bug Report</span>
       </a>
@@ -161,25 +161,6 @@
           <div id="preferredProduct" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
         </div>
       </section>
-
-      <!-- Update Profile -->
-      <section class="bg-white w-[50%] mx-auto dark:bg-slate-800 rounded-xl shadow p-7 space-y-4">
-        <h3 class="text-lg font-semibold">Edit Profile</h3>
-        <form class="grid gap-4">
-          <div>
-            <label class="text-sm block mb-1" for="usernameInput">Username</label>
-            <input id="usernameInput" type="text" class="w-full p-2 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
-          </div>
-          <div>
-            <label class="text-sm block mb-1" for="emailInput">Email</label>
-            <input id="emailInput" type="email" class="w-full p-2 rounded bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600">
-          </div>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500">
-            Save Changes
-          </button>
-        </form>
-      </section>
-      <!-- User Stats -->
     </main>
   </div>
 </div>
@@ -209,9 +190,6 @@
       document.getElementById('email').textContent = data.user.email || 'No email';
       document.getElementById('joined').textContent = new Date(data.user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
       document.getElementById('lastLogin').textContent = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' });
-
-      document.getElementById('usernameInput').value = data.user.username || '';
-      document.getElementById('emailInput').value = data.user.email || '';
 
       // Fetch user stats
       const statsRes = await fetch(`${BASE}/users/me/stats`);

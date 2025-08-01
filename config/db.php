@@ -18,5 +18,5 @@ try {
     );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (Exception $e) {
-    die("DB Connection failed: " . $e->getMessage());
+    die("DB Connection failed (Please try running your mariaDB service): " . $e->getMessage());
 }

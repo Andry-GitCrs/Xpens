@@ -5,8 +5,6 @@ Xpens
 │   │   │   └── index.php
 │   │   ├── logout
 │   │   │   └── index.php
-│   │   ├── me
-│   │   │   └── index.php
 │   │   └── register
 │   │       └── index.php
 │   ├── lists
@@ -24,8 +22,10 @@ Xpens
 │   ├── purchases
 │   │   ├── create.php
 │   │   ├── delete.php
+│   │   ├── filter-by-date-range.php
 │   │   ├── filter-by-date.php
 │   │   ├── filter-by-list.php
+│   │   ├── filter-by-product.php
 │   │   ├── get-all.php
 │   │   ├── get-total-expense-by-date-range.php
 │   │   ├── get-total-expense-by-date.php
@@ -34,6 +34,8 @@ Xpens
 │   │   ├── index.php
 │   │   └── update.php
 │   └── users
+│       ├── me
+│       │   └── index.php
 │       ├── get-all.php
 │       └── index.php
 │   assets
@@ -51,22 +53,27 @@ Xpens
 │   ├── auth
 │   │   └── index.php
 │   └── purchases
-│       ├── get-total-expense-by-product.php
-│       ├── getAllByDateRange.php
-│       └── getAllByProduct.php
-│   templates
-│   ├── pages
-│   │   ├── dashboard.html
-│   │   ├── lists.html
-│   │   ├── login.html
-│   │   ├── products.html
-│   │   ├── profile.html
-│   │   ├── purchases.html
-│   │   └── register.html
-│   └── home.html
+│       ├── get-all-by-product.php
+│       └── get-total-expense-by-product.php
+│   pages
+│   ├── dashboard
+│   │   └── index.html
+│   ├── home
+│   │   └── index.html
+│   ├── lists
+│   │   └── index.html
+│   ├── login
+│   │   └── index.html
+│   ├── products
+│   │   └── index.html
+│   ├── profile
+│   │   └── index.html
+│   ├── purchases
+│   │   └── index.html
+│   └── register
+│       └── index.html
 │   .env
 │   .gitignore
 │   API_DOC.md
-│   architecture.txt
 │   index.php
 │   README.md

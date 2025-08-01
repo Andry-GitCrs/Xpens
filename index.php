@@ -1,4 +1,4 @@
 <?php
 require_once 'config/init.php';
-include 'templates/home.html';
+include 'pages/home/index.html';
 
