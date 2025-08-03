@@ -38,6 +38,21 @@ A simple expense tracking application.
 - **Total Expense by Date:** Sum up all expenses for a specific day.
 - **Total Expense by Date Range:** Get the total expenses over a range of dates.
 
+## Gallery
+### Xpens Home Page
+![Xpens Home Page](Gallery/XpensHome.PNG)
+### Xpens Dashboard Page
+![Xpens Dashboard Page](Gallery/XpensDashboard.PNG)
+### Xpens Lists Page
+![Xpens Lists Page](Gallery/XpensListPage.PNG)
+### Xpens Products Page
+![Xpens Products Page](Gallery/XpensProductsPage.PNG)
+### Xpens Purchases Page
+![Xpens Purchases Page](Gallery/XpensPuchasesPage.PNG)
+### Xpens Profile Page
+![Xpens Profile Page](Gallery/XpensPofilePage.PNG)
+
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.

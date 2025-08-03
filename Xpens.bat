@@ -14,11 +14,11 @@
 ::dAsiuh18IRvcCxnZtBJQ
 ::cRYluBh/LU+EWAnk
 ::YxY4rhs+aU+IeA==
-::cxY6rQJ7JhzQF1fEqQJhZkk0
-::ZQ05rAF9IBncCkqN+0xwdVsFAlbi
+::cxY6rQJ7JhzQF1fEqQJhZkkaHGQ=
+::ZQ05rAF9IBncCkqN+0xwdVsFAlbMbAs=
 ::ZQ05rAF9IAHYFVzEqQIIOB5aX2Q=
-::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
-::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
+::eg0/rx1wNQPfEVWB+kM9LVsJDDySOWWpZg==
+::fBEirQZwNQPfEVWB+kM9LVsJDDySOWWpZg==
 ::cRolqwZ3JBvQF1fEqQIIOB5aX0SWLmq5DbAOiA==
 ::dhA7uBVwLU+EWHiK8FApDB5CLA==
 ::YQ03rBFzNR3SWATElA==
@@ -26,21 +26,21 @@
 ::ZQ0/vhVqMQ3MEVWAtB9wSA==
 ::Zg8zqx1/OA3MEVWAtB9wSA==
 ::dhA7pRFwIByZRRnk
-::Zh4grVQjdCyDJE6F+VJmfCdDWxO+BHu/CKYg0Pj+4fnJp1UYNA==
+::Zh4grVQjdCyDJE6F+VJmfCdDWxO+BHu/CKYg0Pj+4fnK8wNPGrJxfZfeug==
 ::YB416Ek+ZG8=
 ::
 ::
 ::978f952a14a936cc963da21a135fa983
 @echo off
-:: Xpens Launcher v2.1
+:: Xpens Launcher v1.2.0
 :: --------------------------------------------------
 chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
 :: ---------- 1. App identity ----------
-set "OWNER=Andrianaivo Noé (Andry)"
+set "OWNER=ANRIANAIVO Noé (Andry)"
 set "APP_NAME=Xpens"
-set "VERSION=2.1"
+set "VERSION=1.2.0"
 set "DESCRIPTION=Simple Expense Tracking App (Local Dev Mode)"
 set "DEFAULT_PORT=8000"
 set "ENV_FILE=.env"
@@ -57,14 +57,6 @@ echo     %_G%%APP_NAME%%_RESET% - %DESCRIPTION%
 echo     Owner: %OWNER%
 echo     Version: %VERSION%
 echo %_B%---------------------------------------------------%_RESET%
-echo.
-echo [🔐] Authentication: Register, Login, Logout
-echo [👤] User Management
-echo [📋] List & Product Management
-echo [💰] Purchase Tracking & Filtering
-echo [📊] Total Expense Reporting
-echo %_B%---------------------------------------------------%_RESET%
-echo.
 
 :: ---------- 4. .env file ----------
 if not exist "%ENV_FILE%" (
