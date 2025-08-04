@@ -39,73 +39,68 @@ if ($method === 'POST') {
         }
 
         // ----------- List operations -----------
-        // ----------- If no list_id and list_name is provided, create a new list -----------
-        if ($list_id === null || $list_name === null) {
+
+        // Normalize list name if both are missing
+        if (empty($list_name) && empty($list_id)) {
             $list_name = 'Unlisted purchases';
             $list_description = 'All Unlisted purchases are listed here';
-            // Check if user already has a unlisted list list
-            $unlistedListCheck = $pdo->prepare("SELECT * FROM lists WHERE list_name = :list_name AND is_active = 1 AND user_id = :user_id");
-            $unlistedListCheck->bindParam(':list_name', $list_name);
-            $unlistedListCheck->bindParam(':user_id', $user_id);
-            $unlistedListCheck->execute();
-
-            if ($unlistedListCheck->rowCount() === 0) {
-                $createList = $pdo->prepare("INSERT INTO lists (list_name, user_id, description) VALUES (:list_name, :user_id, :list_description)");
-                $createList->bindParam(':list_name', $list_name);
-                $createList->bindParam(':user_id', $user_id);
-                $createList->bindParam(':list_description', $list_description);
-                $createList->execute();
-                // Get new list id and assign to $list_id
-                $list_id = $pdo->lastInsertId();
-            } else {
-                $list_id = $unlistedListCheck->fetch(PDO::FETCH_ASSOC)['id_list'];
-            }
         }
 
-        // Check if the list with the given list_id exist
-        $existingListCheck = $pdo->prepare("SELECT * FROM lists WHERE id_list = :list_id AND is_active = 1 AND user_id = :user_id");
-        $existingListCheck->bindParam(':list_id', $list_id);
-        $existingListCheck->bindParam(':user_id', $user_id);
-        $existingListCheck->execute();
+        // 1. Check if the list with the given list_name exists and is active
+        $existingListName = $pdo->prepare("
+            SELECT * FROM lists 
+            WHERE list_name = :list_name AND is_active = 1 AND user_id = :user_id
+        ");
+        $existingListName->bindParam(':list_name', $list_name);
+        $existingListName->bindParam(':user_id', $user_id);
+        $existingListName->execute();
 
-        if ($existingListCheck->rowCount() === 0) {
-            // Check if the list with the given list_name exist
-            $existingListName = $pdo->prepare("SELECT * FROM lists WHERE list_name = :list_name AND is_active = 1 AND user_id = :user_id");
-            $existingListName->bindParam(':list_name', $list_name);
-            $existingListName->bindParam(':user_id', $user_id);
-            $existingListName->execute();
+        if ($existingListName->rowCount() > 0) {
+            // Use the existing list's ID
+            $list_id = $existingListName->fetch(PDO::FETCH_ASSOC)['id_list'];
 
-            if ($existingListName->rowCount() === 0) {
-                $createList = $pdo->prepare("INSERT INTO lists (list_name, user_id) VALUES (:list_name, :user_id)");
-                $createList->bindParam(':list_name', $list_name);
-                $createList->bindParam(':user_id', $user_id);
-                $createList->execute();
-                // Get new list id and assign to $list_id
-                $list_id = $pdo->lastInsertId();
-            } else { // Get the existing list id and assign to $list_id to insure that the given list_name is prioritized
-                $list_id = $existingListName->fetch(PDO::FETCH_ASSOC)['id_list'];        
+        } else {
+            // Create new list (with optional description for unlisted)
+            $createListQuery = empty($list_description)
+                ? "INSERT INTO lists (list_name, user_id) VALUES (:list_name, :user_id)"
+                : "INSERT INTO lists (list_name, user_id, description) VALUES (:list_name, :user_id, :list_description)";
+
+            $createList = $pdo->prepare($createListQuery);
+            $createList->bindParam(':list_name', $list_name);
+            $createList->bindParam(':user_id', $user_id);
+            if (!empty($list_description)) {
+                $createList->bindParam(':list_description', $list_description);
             }
+            $createList->execute();
+
+            // Get the new list ID
+            $list_id = $pdo->lastInsertId();
         }
         
         // ----------- Product operations -----------
-        // Check if the product with the given product_id exist
-        $existingProductCheck = $pdo->prepare("SELECT * FROM products WHERE id_product = :product_id AND is_active = 1");
-        $existingProductCheck->bindParam(':product_id', $product_id);
-        $existingProductCheck->execute();
+        // Check if the product with the same name exists and is active
+        $existingProductName = $pdo->prepare("
+            SELECT * FROM products 
+            WHERE product_name = :product_name AND is_active = 1
+        ");
+        $existingProductName->bindParam(':product_name', $product_name);
+        $existingProductName->execute();
 
-        if ($existingProductCheck->rowCount() === 0) {
-            // Check if the product with the given product_name exist
-            $existingProductName = $pdo->prepare("SELECT * FROM products WHERE product_name = :product_name AND is_active = 1");
-            $existingProductName->bindParam(':product_name', $product_name);
-            $existingProductName->execute();
+        if ($existingProductName->rowCount() > 0) {
+            // Product exists with the name, use its ID
+            $product_id = $existingProductName->fetch(PDO::FETCH_ASSOC)['id_product'];
 
-            if ($existingProductName->rowCount() === 0) {
-                $createProduct = $pdo->prepare("INSERT INTO products (product_name) VALUES (:product_name)");
-                $createProduct->bindParam(':product_name', $product_name);
-                $createProduct->execute();
-                // Get new product id and assign to $product_id
-                $product_id = $pdo->lastInsertId();
-            }
+        } else {
+            // Product name not found, create new product
+            $createProduct = $pdo->prepare("
+                INSERT INTO products (product_name) 
+                VALUES (:product_name)
+            ");
+            $createProduct->bindParam(':product_name', $product_name);
+            $createProduct->execute();
+
+            // Assign the new product ID
+            $product_id = $pdo->lastInsertId();
         }
 
         // Optional fields

@@ -526,11 +526,12 @@ document.getElementById('saveBtn').onclick=async()=>{
     try {
       const response = await res.json()
       if (res.ok) {
-        toast(editing?'Updated' || response.message :'Created' || response.message);
+        toast(editing? response.message ||'Updated successfully' : response.message || 'Created successfully');
         closeModal();
         load();
         return
       }
+      console.error(response);
       toast(editing? response.message || 'Error while updating' :response.message || 'Error while creating the purchase' , 'error');
     } catch (e) {
       console.error(e);
