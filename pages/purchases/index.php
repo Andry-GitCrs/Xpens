@@ -15,7 +15,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../../assets/js/tailwind.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <script>
     tailwind.config = { darkMode: 'class' }
   </script>
@@ -82,10 +82,12 @@
       </button>
     </div>
   </aside>
-
+  
   <!-- Main content -->
   <div class="flex-1 overflow-y-auto max-h-screen">
     <!-- Topbar -->
+    <!-- ... inchangé ... -->
+
     <header class="sticky top-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 z-10">
       <div class="px-4 sm:px-6 py-4 flex justify-between items-center">
         <h1 class="text-xl font-bold">Purchases</h1>
@@ -184,15 +186,14 @@
       </section>
 
       <!-- table -->
-      <div id="table" class="bg-white dark:bg-slate-800 rounded-xl shadow overflow-x-auto p-3">
-        <div class="p-4">Loading…</div>
-      </div>
+      <div id="purchaseTable"></div>
       <!-- chart -->
       <canvas id="dailyChart" height="100"></canvas>
     </main>
   </div>
 </div>
 
+<!-- modal + toast ... inchangé ... -->
 <!-- Add/Edit Modal -->
 <div id="modal" class="fixed inset-0 bg-black/40 hidden place-items-center z-30">
   <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md space-y-3">
@@ -232,14 +233,24 @@
 <div id="toast" class="toast"></div>
 <script>
 const BASE='/api';
-const toast=(m,t='success')=>{const el=document.getElementById('toast');el.textContent=m;el.className=`toast ${t}`;setTimeout(()=>el.classList.add('show'),10);setTimeout(()=>el.classList.remove('show'),3000);};
+const toast=(m,t='success')=>{
+  const el=document.getElementById('toast');
+  el.textContent=m;
+  el.className=`toast ${t}`;
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>el.classList.remove('show'),3000);
+};
 let purchases=[],products=[],lists=[],chart,editing=null;
+
+// Pagination vars
+let currentPage = 1;
+const rowsPerPage = 10;
 
 const load=async()=>{
   [purchases,products,lists]=await Promise.all([
-    fetch(`${BASE}/purchases`).then(r=>r.ok?r.json():Promise.reject()),
-    fetch(`${BASE}/products`).then(r=>r.ok?r.json():Promise.reject()),
-    fetch(`${BASE}/lists`).then(r=>r.ok?r.json():Promise.reject())
+    fetch(`${BASE}/purchases`).then(r=>r.ok?r.json():[]),
+    fetch(`${BASE}/products`).then(r=>r.ok?r.json():[]),
+    fetch(`${BASE}/lists`).then(r=>r.ok?r.json():[])
   ]);
   populateFilters(); render();
 };
@@ -248,10 +259,14 @@ const load=async()=>{
   document.getElementById('profile').textContent = total_expense.user.username;
 })()
 const populateFilters = () => {
-  const l=document.getElementById('listFilter');l.innerHTML='<option value="">All Lists</option>'+lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
-  const p2=document.getElementById('productFilter');p2.innerHTML='<option value="">All Products</option>'+products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
-  const p=document.getElementById('productSel');p.innerHTML=products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
-  const l2=document.getElementById('listSel');l2.innerHTML=lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
+  const l=document.getElementById('listFilter');
+  l.innerHTML='<option value="">All Lists</option>'+lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
+  const p2=document.getElementById('productFilter');
+  p2.innerHTML='<option value="">All Products</option>'+products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
+  const p=document.getElementById('productSel');
+  p.innerHTML=products.map(pr=>`<option value="${pr.id_product}">${pr.product_name}</option>`).join('');
+  const l2=document.getElementById('listSel');
+  l2.innerHTML=lists.map(l=>`<option value="${l.id_list}">${l.list_name}</option>`).join('');
 };
 const render = async () => {
   const startDate = document.getElementById('startDate').value;
@@ -259,60 +274,38 @@ const render = async () => {
   const list = document.getElementById('listFilter').value;
   const product = document.getElementById('productFilter').value;
   let filtered = purchases;
-  if( (startDate && !endDate) || endDate && !startDate ) {
-    const date = startDate || endDate
-    const purchaseFilteredByDate = await fetch(`${BASE}/purchases?purchase_date=${formatDate(date)}`).then(r=>r.ok?r.json():Promise.reject())
-    filtered = purchaseFilteredByDate;
+
+  if( (startDate && !endDate) || (endDate && !startDate) ) {
+    const date = startDate || endDate;
+    filtered = await fetch(`${BASE}/purchases?purchase_date=${formatDate(date)}`).then(r=>r.ok?r.json():[]);
   } else if (startDate && endDate) {
-    const purchaseFilteredByDate = await fetch(`${BASE}/purchases?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`)
-      .then(async r => r.ok ? r.json() : swapDate(r)) || []
-    filtered = purchaseFilteredByDate;
-  } if(list) {
-    const purchaseFilteredByList = await fetch(`${BASE}/purchases?list_id=${list}`).then(r=>r.ok?r.json():Promise.reject())
-    filtered = purchaseFilteredByList;
-  } if(product) {
-    const purchaseFilteredByProduct = await fetch(`${BASE}/purchases?product_id=${product}`).then(r=>r.ok?r.json():Promise.reject())
-    filtered = purchaseFilteredByProduct;
+    filtered = await fetch(`${BASE}/purchases?start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`)
+      .then(async r => r.ok ? r.json() : swapDate(r)) || [];
+  } 
+  if(list) {
+    filtered = await fetch(`${BASE}/purchases?list_id=${list}`).then(r=>r.ok?r.json():[]);
+  } 
+  if(product) {
+    filtered = await fetch(`${BASE}/purchases?product_id=${product}`).then(r=>r.ok?r.json():[]);
   }
 
-  // Calculate total expense
-  const total = filtered.reduce((sum, item) => {
-    return sum + parseFloat(item.total_price || 0);
-  }, 0);
-  // Get products
-  const products = []
-  filtered.map(purchase => {
-    if (!products.includes(purchase.product_name)) products.push(purchase.product_name) ;
-  })
-  // Get lists
-  const lists = []
-  filtered.map(list => {
-    if (!lists.includes(list.list_name)) lists.push(list.list_name) ;
-  })
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginated = filtered.slice(start, end);
 
-  // Update total display
-  document.getElementById("totalExpenseAmount").textContent = `${Number(total).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  // Calculate totals
+  const total = filtered.reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
+
+  // Update summary
+  document.getElementById("totalExpenseAmount").textContent = Number(total).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById("purchaseNbr").textContent = filtered.length;
-  document.getElementById("productNbr").textContent = products.length;
-  document.getElementById("listNbr").textContent = lists.length;
-  document.getElementById('table').innerHTML = `
-  <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-3">
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search purchase..."
-      class="px-3 py-1 w-full md:w-1/3 rounded bg-transparent text-gray-900 dark:text-white border border-slate-300 dark:border-slate-600 outline-none"
-    />
-    <select
-      id="sortSelect"
-      class="px-3 py-2 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-white dark:border-slate-600 outline-none"
-    >
-      <option value="updated_at">Sort by: Updated (newest)</option>
-      <option value="created_at">Created (newest)</option>
-      <option value="total_expense">Total Expense (high → low)</option>
-      <option value="purchase_nbr">Purchases (most → fewest)</option>
-    </select>
-  </div>
+  document.getElementById("productNbr").textContent = [...new Set(filtered.map(p => p.product_name))].length;
+  document.getElementById("listNbr").textContent = [...new Set(filtered.map(p => p.list_name))].length;
+
+  document.getElementById('purchaseTable').innerHTML = `
   <table class="w-full text-sm">
     <thead class="border-b border-slate-200 dark:border-slate-700">
       <tr>
@@ -325,13 +318,13 @@ const render = async () => {
       </tr>
     </thead>
     <tbody>
-      ${filtered.map(p => `
+      ${paginated.map(p => `
         <tr class="border-b border-slate-100 dark:border-slate-700">
           <td class="p-2 font-medium">${p.product_name || '-'}</td>
           <td class="p-2 text-slate-500">${p.list_name || '-'}</td>
           <td class="p-2 text-slate-500">${parseFloat(p.number).toFixed(2)} ${p.unit || ''}</td>
-          <td class="p-2 text-right">${Number(p.total_price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</td>
+          <td class="p-2 text-right">${Number(p.total_price).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+          <td class="p-2 text-right text-slate-400 text-xs">${new Date(p.purchase_date).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'numeric'})}</td>
           <td class="p-2 text-right text-sm space-x-1">
             <button onclick="editPurchase(${p.id_purchase})" class="text-indigo-500 hover:underline"><i class="fas fa-edit"></i></button>
             <button onclick="delPurchase(${p.id_purchase})" class="text-red-500 hover:underline"><i class="fas fa-trash"></i></button>
@@ -340,14 +333,30 @@ const render = async () => {
       `).join('')}
     </tbody>
   </table>
-`;
 
-drawChart(filtered);
+  <!-- Pagination -->
+  <div class="flex justify-center mt-4 space-x-2">
+    <button onclick="prevPage()" class="px-3 py-1 border rounded ${currentPage===1?'opacity-50 cursor-not-allowed':''}">Prev</button>
+    ${Array.from({length: totalPages}, (_, i) => `
+      <button onclick="goToPage(${i+1})" class="px-3 py-1 border rounded ${currentPage===i+1?'bg-indigo-500 text-white':''}">
+        ${i+1}
+      </button>
+    `).join('')}
+    <button onclick="nextPage(${totalPages})" class="px-3 py-1 border rounded ${currentPage===totalPages?'opacity-50 cursor-not-allowed':''}">Next</button>
+  </div>
+  `;
 
+  drawChart(filtered);
 };
+
+// Pagination
+function prevPage(){ if(currentPage>1){ currentPage--; render(); } }
+function nextPage(totalPages){ if(currentPage<totalPages){ currentPage++; render(); } }
+function goToPage(page){ currentPage=page; render(); }
+
 const swapDate = async (r) =>  {
-  const response = await r.json()
-  toast(response.message || "Error while fetching purchase", "error")
+  const response = await r.json();
+  toast(response.message || "Error while fetching purchase", "error");
   const temp = document.getElementById('startDate').value;
   document.getElementById('startDate').value = document.getElementById('endDate').value;
   document.getElementById('endDate').value = temp;
@@ -457,8 +466,7 @@ document.getElementById('clearBtn').onclick = () => {
   document.getElementById('listFilter').value='';
   document.getElementById('productFilter').value='';
   render();
-};
-
+}
 const openModal = (id = null) => {
   editing = id;
   document.getElementById('modalTitle').textContent = id ? 'Edit Purchase' : 'New Purchase';
@@ -552,18 +560,20 @@ function toServerDatetimeFormat(inputValue) {
   return `${day}-${month}-${year} ${timePart}`;
 }
 load();
+
+// Dark mode
 const darkMode = () => {
-  document.documentElement.classList.toggle('dark', localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+  document.documentElement.classList.toggle('dark', localStorage.theme==='dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
 };
 darkMode();
-
 document.getElementById('themeToggle').onclick = () => {
-  localStorage.theme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+  localStorage.theme=document.documentElement.classList.contains('dark')?'light':'dark';
   darkMode();
 };
-document.getElementById('logoutBtn').onclick = () => fetch(`${BASE}/auth/logout`).then(() => location.href = '/');
-function formatDate(dateStr) {
-  const [year, month, day] = dateStr.split('-');
+document.getElementById('logoutBtn').onclick=()=>fetch(`${BASE}/auth/logout`).then(()=>location.href='/');
+
+function formatDate(dateStr){
+  const [year,month,day]=dateStr.split('-');
   return `${day}-${month}-${year}`;
 }
 </script>

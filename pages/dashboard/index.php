@@ -105,32 +105,54 @@
     <main class="p-4 sm:p-6 grid gap-6">
       <!-- KPI cards -->
       <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div id="kpiTotal" class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">Today expense</div>
-          <div class="text-2xl font-bold text-indigo-600">—</div>
-        </div>
-        <div id="kpiLists" onclick="window.location.href='/pages/lists'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">
-            <i class="fas fa-list-ul"></i>
-            Total Lists
-          </div>
-          <div class="text-2xl font-bold text-sky-600">—</div>
-        </div>
-        <div id="kpiPurchases" onclick="window.location.href='/pages/purchases'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">
-            <i class="fab fa-shopify"></i>
-            Total Purchases
-          </div>
-          <div class="text-2xl font-bold text-emerald-600">—</div>
-        </div>
-        <div id="kpiProducts" onclick="window.location.href='/pages/products'" class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4">
-          <div class="text-sm text-slate-500 dark:text-slate-400">
-            <i class="fas fa-box-open"></i>
-            All Products
-          </div>
-          <div class="text-2xl font-bold text-amber-600">—</div>
-        </div>
-      </section>
+  <!-- Total KPI (no hover effect) -->
+  <div id="kpiTotal" class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+    <div class="text-sm text-slate-500 dark:text-slate-400">Today expense</div>
+    <div class="text-2xl font-bold text-indigo-600">—</div>
+  </div>
+
+  <!-- Lists KPI -->
+  <div 
+    id="kpiLists" 
+    onclick="window.location.href='/pages/lists'" 
+    class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4 hover:bg-sky-50 dark:hover:bg-slate-700 transition-colors" 
+    title="Click to view all lists"
+  >
+    <div class="text-sm text-slate-500 dark:text-slate-400">
+      <i class="fas fa-list-ul"></i>
+      Total Lists
+    </div>
+    <div class="text-2xl font-bold text-sky-600">—</div>
+  </div>
+
+  <!-- Purchases KPI -->
+  <div 
+    id="kpiPurchases" 
+    onclick="window.location.href='/pages/purchases'" 
+    class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors" 
+    title="Click to view all purchases"
+  >
+    <div class="text-sm text-slate-500 dark:text-slate-400">
+      <i class="fab fa-shopify"></i>
+      Total Purchases
+    </div>
+    <div class="text-2xl font-bold text-emerald-600">—</div>
+  </div>
+
+  <!-- Products KPI -->
+  <div 
+    id="kpiProducts" 
+    onclick="window.location.href='/pages/products'" 
+    class="cursor-pointer bg-white dark:bg-slate-800 rounded-xl shadow p-4 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors" 
+    title="Click to view all products"
+  >
+    <div class="text-sm text-slate-500 dark:text-slate-400">
+      <i class="fas fa-box-open"></i>
+      All Products
+    </div>
+    <div class="text-2xl font-bold text-amber-600">—</div>
+  </div>
+</section>
 
       <!-- Charts -->
       <section class="grid lg:grid-cols-2 gap-6">

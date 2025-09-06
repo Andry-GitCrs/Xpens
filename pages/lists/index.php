@@ -141,28 +141,32 @@ const fetchLists=async()=>{
   lists=await fetch(`${BASE}/lists`).then(r=>r.ok?r.json():Promise.reject());
   render();
 };
-const render=()=>{
-  const c=document.getElementById('listContainer');
+let currentPage = 1;
+const rowsPerPage = 10;
 
-  if(lists.length===0){
-    c.innerHTML='<h2 class="text-center text-slate-400 dark:text-slate-500"> Nothing to show </h2>';
+// Pagination interne des achats
+let purchasePages = {}; 
+const purchaseRowsPerPage = 10;
+
+const render = () => {
+  const c = document.getElementById('listContainer');
+
+  if (lists.length === 0) {
+    c.innerHTML = '<h2 class="text-center text-slate-400 dark:text-slate-500"> Nothing to show </h2>';
     return;
   }
 
-  console.log(lists);
+  // Pagination principale
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedLists = lists.slice(start, end);
 
   c.innerHTML = `
   <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-3">
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search products..."
-      class="px-3 py-1 w-full md:w-1/3 rounded bg-transparent text-gray-900 dark:text-white border border-slate-300 dark:border-slate-600 outline-none"
-    />
-    <select
-      id="sortSelect"
-      class="px-3 py-2 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-white dark:border-slate-600 outline-none"
-    >
+    <input id="searchInput" type="text" placeholder="Search products..."
+      class="px-3 py-1 w-full md:w-1/3 rounded bg-transparent text-gray-900 dark:text-white border border-slate-300 dark:border-slate-600 outline-none"/>
+    <select id="sortSelect"
+      class="px-3 py-2 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-white dark:border-slate-600 outline-none">
       <option value="updated_at">Sort by: Updated (newest)</option>
       <option value="created_at">Created (newest)</option>
       <option value="total_expense">Total Expense (high → low)</option>
@@ -182,10 +186,19 @@ const render=()=>{
       </tr>
     </thead>
     <tbody>
-      ${lists.map((l, i) => `
+      ${paginatedLists.map((l, i) => {
+        const listIndex = start + i;
+        // pagination des achats
+        if (!purchasePages[l.id_list]) purchasePages[l.id_list] = 1;
+        const pPage = purchasePages[l.id_list];
+        const pStart = (pPage - 1) * purchaseRowsPerPage;
+        const pEnd = pStart + purchaseRowsPerPage;
+        const paginatedPurchases = (l.purchases || []).slice(pStart, pEnd);
+
+        return `
         <tr class="border-b border-slate-100 dark:border-slate-700">
           <td class="p-2 font-medium">
-            <button onclick="togglePurchases(${i})" class="text-blue-500 hover:underline">
+            <button onclick="togglePurchases(${listIndex})" class="text-blue-500 hover:underline">
               ${l.list_name}
             </button>
           </td>
@@ -208,8 +221,8 @@ const render=()=>{
           </td>
         </tr>
 
-        <!-- Purchases Row (hidden by default) -->
-        <tr id="purchases-${i}" class="hidden bg-slate-50 dark:bg-slate-800">
+        <!-- Purchases Row -->
+        <tr id="purchases-${listIndex}" class="hidden bg-slate-50 dark:bg-slate-800">
           <td colspan="7" class="p-2">
             ${(l.purchases?.length > 0) ? `
               <table class="w-full text-xs border border-slate-200 dark:border-slate-600 rounded">
@@ -225,7 +238,7 @@ const render=()=>{
                   </tr>
                 </thead>
                 <tbody>
-                  ${l.purchases.map(p => `
+                  ${paginatedPurchases.map(p => `
                     <tr class="border-t border-slate-200 dark:border-slate-700">
                       <td class="p-1">${p.product_name}</td>
                       <td class="p-1">${p.purchase_description}</td>
@@ -240,14 +253,122 @@ const render=()=>{
                   `).join('')}
                 </tbody>
               </table>
+
+              <!-- Pagination des achats -->
+              <div class="flex justify-center mt-2 space-x-2">
+                <button onclick="prevPurchasePage(${l.id_list})"
+                  class="px-2 py-1 border rounded ${pPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                  ${pPage === 1 ? 'disabled' : ''}>Prev</button>
+                ${Array.from({ length: Math.ceil(l.purchases.length / purchaseRowsPerPage) }, (_, j) => `
+                  <button onclick="goToPurchasePage(${l.id_list}, ${j + 1})"
+                    class="px-2 py-1 border rounded ${pPage === j + 1 ? 'bg-blue-500 text-white' : ''}">${j + 1}</button>
+                `).join('')}
+                <button onclick="nextPurchasePage(${l.id_list}, ${l.purchases.length})"
+                  class="px-2 py-1 border rounded ${pPage === Math.ceil(l.purchases.length / purchaseRowsPerPage) ? 'opacity-50 cursor-not-allowed' : ''}"
+                  ${pPage === Math.ceil(l.purchases.length / purchaseRowsPerPage) ? 'disabled' : ''}>Next</button>
+              </div>
             ` : '<div class="text-slate-400 italic">No purchases</div>'}
           </td>
         </tr>
-      `).join('')}
+        `;
+      }).join('')}
     </tbody>
   </table>
-`;
+
+  <!-- Pagination principale -->
+  <div class="flex justify-center mt-3 space-x-2">
+    <button onclick="prevPage()" class="px-3 py-1 border rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === 1 ? 'disabled' : ''}>Prev</button>
+    ${Array.from({ length: Math.ceil(lists.length / rowsPerPage) }, (_, i) => `
+      <button onclick="goToPage(${i + 1})" class="px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}">${i + 1}</button>
+    `).join('')}
+    <button onclick="nextPage()" class="px-3 py-1 border rounded ${currentPage === Math.ceil(lists.length / rowsPerPage) ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === Math.ceil(lists.length / rowsPerPage) ? 'disabled' : ''}>Next</button>
+  </div>
+  `;
 };
+
+// ===== Pagination principale =====
+function goToPage(page) { currentPage = page; render(); }
+function prevPage() { if (currentPage > 1) { currentPage--; render(); } }
+function nextPage() { if (currentPage < Math.ceil(lists.length / rowsPerPage)) { currentPage++; render(); } }
+
+// ===== light re-render of ONE purchases block =====
+function renderPurchases(listIndex) {
+  const l = lists[listIndex];                 // the list we want to update
+  const tr  = document.getElementById(`purchases-${listIndex}`);
+  if (!tr) return;                            // not on screen → nothing to do
+
+  const pPage = purchasePages[l.id_list] || 1;
+  const pStart = (pPage - 1) * purchaseRowsPerPage;
+  const pEnd   = pStart + purchaseRowsPerPage;
+  const paginatedPurchases = (l.purchases || []).slice(pStart, pEnd);
+
+  tr.innerHTML = `
+    <td colspan="7" class="p-2">
+      ${(l.purchases?.length > 0) ? `
+        <table class="w-full text-xs border border-slate-200 dark:border-slate-600 rounded">
+          <thead>
+            <tr class="bg-slate-100 dark:bg-slate-700 text-left">
+              <th class="p-1">Product</th>
+              <th class="p-1">Description</th>
+              <th class="p-1 text-right">Number</th>
+              <th class="p-1">Unit</th>
+              <th class="p-1 text-right">Unit Price</th>
+              <th class="p-1 text-right">Total</th>
+              <th class="p-1 text-right">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paginatedPurchases.map(p => `
+              <tr class="border-t border-slate-200 dark:border-slate-700">
+                <td class="p-1">${p.product_name}</td>
+                <td class="p-1">${p.purchase_description}</td>
+                <td class="p-1 text-right">${parseFloat(p.number).toLocaleString()}</td>
+                <td class="p-1">${p.unit}</td>
+                <td class="p-1 text-right">${parseFloat(p.unit_price).toLocaleString()}</td>
+                <td class="p-1 text-right">${parseFloat(p.total_price).toLocaleString()}</td>
+                <td class="p-1 text-right text-slate-500">${new Date(p.purchase_date).toLocaleDateString(undefined, {
+                  year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'
+                })}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="flex justify-center mt-2 space-x-2">
+          <button onclick="prevPurchasePage(${l.id_list}, ${listIndex})"
+            class="px-2 py-1 border rounded ${pPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+            ${pPage === 1 ? 'disabled' : ''}>Prev</button>
+          ${Array.from({ length: Math.ceil(l.purchases.length / purchaseRowsPerPage) }, (_, j) => `
+            <button onclick="goToPurchasePage(${l.id_list}, ${listIndex}, ${j + 1})"
+              class="px-2 py-1 border rounded ${pPage === j + 1 ? 'bg-blue-500 text-white' : ''}">${j + 1}</button>
+          `).join('')}
+          <button onclick="nextPurchasePage(${l.id_list}, ${listIndex}, ${l.purchases.length})"
+            class="px-2 py-1 border rounded ${pPage === Math.ceil(l.purchases.length / purchaseRowsPerPage) ? 'opacity-50 cursor-not-allowed' : ''}"
+            ${pPage === Math.ceil(l.purchases.length / purchaseRowsPerPage) ? 'disabled' : ''}>Next</button>
+        </div>
+      ` : '<div class="text-slate-400 italic">No purchases</div>'}
+    </td>
+  `;
+}
+
+// ===== new pager callbacks (only inner re-render) =====
+function goToPurchasePage(listId, listIndex, page) {
+  purchasePages[listId] = page;
+  renderPurchases(listIndex);
+}
+function prevPurchasePage(listId, listIndex) {
+  if ((purchasePages[listId] || 1) > 1) {
+    purchasePages[listId]--;
+    renderPurchases(listIndex);
+  }
+}
+function nextPurchasePage(listId, listIndex, totalPurchases) {
+  const maxPage = Math.ceil(totalPurchases / purchaseRowsPerPage);
+  if ((purchasePages[listId] || 1) < maxPage) {
+    purchasePages[listId]++;
+    renderPurchases(listIndex);
+  }
+}
 const openModal = (isEdit = false) => {
   editing = isEdit;
   document.getElementById('modalTitle').textContent=isEdit?'Edit List':'New List';

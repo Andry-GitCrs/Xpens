@@ -154,9 +154,23 @@ const fetchProducts = async () => {
    document.getElementById('profile').textContent = total_expense.user.username;
 })()
 
-/* ---------- Render ---------- */
+/* ---------- Render with Pagination ---------- */
+let currentPage = 1;
+const rowsPerPage = 10;
+
 const render = () => {
   const c = document.getElementById('product_table');
+
+  if (!products || products.length === 0) {
+    c.innerHTML = '<h2 class="text-center text-slate-400 dark:text-slate-500">Nothing to show</h2>';
+    return;
+  }
+
+  const totalPages = Math.ceil(products.length / rowsPerPage);
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedProducts = products.slice(start, end);
+
   c.innerHTML = `
   <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-3">
     <input
@@ -186,7 +200,7 @@ const render = () => {
       </tr>
     </thead>
     <tbody>
-      ${products.map(p => `
+      ${paginatedProducts.map(p => `
         <tr class="border-b border-slate-100 dark:border-slate-700">
           <td class="p-2 font-medium">${p.product_name || '-'}</td>
           <td class="p-2 text-slate-500">${new Date(p.created_at).toLocaleDateString(undefined, {
@@ -206,9 +220,20 @@ const render = () => {
       `).join('')}
     </tbody>
   </table>
-`;
-
+  <div class="flex justify-center mt-3 space-x-2">
+    <button onclick="prevPage()" class="px-3 py-1 border rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === 1 ? 'disabled' : ''}>Prev</button>
+    ${Array.from({ length: totalPages }, (_, i) => `
+      <button onclick="goToPage(${i + 1})" class="px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}">${i + 1}</button>
+    `).join('')}
+    <button onclick="nextPage()" class="px-3 py-1 border rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+  </div>
+  `;
 };
+
+// ---------- Pagination Controls ----------
+const prevPage = () => { if (currentPage > 1) { currentPage--; render(); } };
+const nextPage = () => { if (currentPage < Math.ceil(products.length / rowsPerPage)) { currentPage++; render(); } };
+const goToPage = (page) => { currentPage = page; render(); };
 
 /* ---------- Modal ---------- */
 const openModal = (id = null) => {
